@@ -11,31 +11,31 @@
 // It adds bogus flow to a given basic block this way:
 //
 // Before :
-// 	         		     entry
-//      			       |
-//  	    	  	 ______v______
-//   	    		|   Original  |
-//   	    		|_____________|
-//             		       |
-// 		        	       v
-//		        	     return
+//                           entry
+//                             |
+//                       ______v______
+//                      |   Original  |
+//                      |_____________|
+//                             |
+//                             v
+//                           return
 //
 // After :
-//           		     entry
-//             		       |
-//            		   ____v_____
-//      			  |condition*| (false)
-//           		  |__________|----+
-//           		 (true)|          |
-//             		       |          |
-//           		 ______v______    |
-// 		        +-->|   Original* |   |
-// 		        |   |_____________| (true)
-// 		        |   (false)|    !-----------> return
-// 		        |    ______v______    |
-// 		        |   |   Altered   |<--!
-// 		        |   |_____________|
-// 		        |__________|
+//                           entry
+//                             |
+//                         ____v_____
+//                        |condition*| (false)
+//                        |__________|----+
+//                       (true)|          |
+//                             |          |
+//                       ______v______    |
+//                  +-->|   Original* |   |
+//                  |   |_____________| (true)
+//                  |   (false)|    !-----------> return
+//                  |    ______v______    |
+//                  |   |   Altered   |<--!
+//                  |   |_____________|
+//                  |__________|
 //
 //  * The results of these terminator's branch's conditions are always true, but these predicates are
 //    opacificated. For this, we declare two global values: x and y, and replace the FCMP_TRUE
