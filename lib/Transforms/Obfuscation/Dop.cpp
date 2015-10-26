@@ -2,6 +2,8 @@
 #include "llvm/IR/Function.h"
 #include "llvm/Support/raw_ostream.h"
 
+#include "llvm/Transforms/Obfuscation/Utils.h"
+
 using namespace llvm;
 
 namespace {
@@ -10,9 +12,11 @@ namespace {
         Dop() : FunctionPass(ID) {}
 
         bool runOnFunction(Function &F) override {
-            errs() << "Hello: ";
-            errs().write_escaped(F.getName()) << '\n';
-            return false;
+            if(toObfuscate(flag,&F,"dop")) {
+                errs() << "Hello: ";
+                errs().write_escaped(F.getName()) << '\n';
+                return false;
+            }
         }
     };
 }
