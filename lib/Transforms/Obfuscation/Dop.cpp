@@ -9,7 +9,9 @@ using namespace llvm;
 namespace {
     struct Dop : public FunctionPass {
         static char ID;
+        bool flag;
         Dop() : FunctionPass(ID) {}
+        Dop(bool flag) : FunctionPass(ID) {this->flag = flag; Dop();}
 
         bool runOnFunction(Function &F) override {
             if(toObfuscate(flag,&F,"dop")) {
@@ -23,3 +25,4 @@ namespace {
 
 char Dop::ID = 0;
 static RegisterPass<Dop> X("Dop", "Dynamic opaque predicate obfuscation Pass", false, false);
+
