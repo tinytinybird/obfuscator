@@ -19,12 +19,27 @@ namespace {
                 errs() << "Hello: ";
                 errs().write_escaped(F.getName()) << '\n';
 
-                for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
-                    for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
+                addDOP(Function &F);
+
+                return true;
+
+                // for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
+                //     for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
+                //         errs().write_escaped(i->getOpcodeName()) << '\n';
+                //     }
+                // }
+
+            }
+            return false;
+        }
+        void addDOP(Function &F) {
+            for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {       
+                for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
+                    unsigned opcode = i->getOpcode();
+                    if (opcode == Instruction::Alloca && i->getAllocatedType()->isIntegerTy(32)) {
                         errs().write_escaped(i->getOpcodeName()) << '\n';
                     }
                 }
-
             }
         }
     };
