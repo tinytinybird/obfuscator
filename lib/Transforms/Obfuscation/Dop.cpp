@@ -18,7 +18,22 @@ namespace {
             if(toObfuscate(flag,&F,"dop")) {
                 errs() << "Hello: ";
                 errs().write_escaped(F.getName()) << '\n';
-                return false;
+
+                std::vector worklist;
+                for(inst_iterator I = inst_begin(F), E = inst_end(F); I != E; ++I){
+                    worklist.push_back(&*I);
+                }
+
+// def-use chain for Instruction
+                for(std::vector::iterator iter = worklist.begin(); iter != worklist.end(); ++iter){
+                    Instruction* instr = *iter;
+                    errs() << "def: " <<*instr << "\n";
+                    for(Value::use_iterator i = instr->use_begin(), ie = instr->use_end(); i!=ie; ++i){
+                        Value *v = *i;
+                        Instruction *vi = dyn_cast(*i);
+                        errs() << "\t\t" << *vi << "\n";
+                    }
+                }
             }
         }
     };
