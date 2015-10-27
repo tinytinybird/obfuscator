@@ -43,7 +43,7 @@ using namespace llvm;
 // Namespace
 namespace llvm {
 	Pass *createDop ();
-	Pass *createdop (bool flag);
+	Pass *createDop (bool flag);
 }
 #endif
 

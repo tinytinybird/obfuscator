@@ -2,6 +2,7 @@
 #include "llvm/IR/Function.h"
 #include "llvm/Support/raw_ostream.h"
 
+#include "llvm/Transforms/Obfuscation/Dop.h"
 #include "llvm/Transforms/Obfuscation/Utils.h"
 
 using namespace llvm;
