@@ -19,7 +19,7 @@ namespace {
                 errs() << "Hello: ";
                 errs().write_escaped(F.getName()) << '\n';
 
-                addDOP(Function &F);
+                addDOP(F);
 
                 return true;
 
@@ -36,8 +36,10 @@ namespace {
             for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {       
                 for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
                     unsigned opcode = i->getOpcode();
-                    if (opcode == Instruction::Alloca && i->getAllocatedType()->isIntegerTy(32)) {
+                    if (opcode == Instruction::Alloca) {
                         errs().write_escaped(i->getOpcodeName()) << '\n';
+			errs().write_escaped(i->getOperand(0)->getName()) << '\n';
+			break;
                     }
                 }
             }
