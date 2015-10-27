@@ -19,21 +19,12 @@ namespace {
                 errs() << "Hello: ";
                 errs().write_escaped(F.getName()) << '\n';
 
-                std::vector worklist;
-                for(inst_iterator I = inst_begin(F), E = inst_end(F); I != E; ++I){
-                    worklist.push_back(&*I);
-                }
-
-// def-use chain for Instruction
-                for(std::vector::iterator iter = worklist.begin(); iter != worklist.end(); ++iter){
-                    Instruction* instr = *iter;
-                    errs() << "def: " <<*instr << "\n";
-                    for(Value::use_iterator i = instr->use_begin(), ie = instr->use_end(); i!=ie; ++i){
-                        Value *v = *i;
-                        Instruction *vi = dyn_cast(*i);
-                        errs() << "\t\t" << *vi << "\n";
+                for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++b;) {
+                    for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
+                        errs().write_escaped(i.getName()) << '\n';
                     }
                 }
+
             }
         }
     };
