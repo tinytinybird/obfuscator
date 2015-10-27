@@ -19,9 +19,9 @@ namespace {
                 errs() << "Hello: ";
                 errs().write_escaped(F.getName()) << '\n';
 
-                for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++b;) {
+                for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
                     for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
-                        errs().write_escaped(i.getName()) << '\n';
+                        errs().write_escaped(i->getOpcodeName()) << '\n';
                     }
                 }
 
