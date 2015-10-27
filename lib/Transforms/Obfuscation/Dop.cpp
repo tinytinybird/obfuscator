@@ -26,3 +26,10 @@ namespace {
 char Dop::ID = 0;
 static RegisterPass<Dop> X("Dop", "Dynamic opaque predicate obfuscation Pass", false, false);
 
+Pass *llvm::createDop() {
+  return new Dop();
+}
+
+Pass *llvm::createDop(bool flag) {
+  return new Dop(flag);
+}

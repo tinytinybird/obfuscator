@@ -33,6 +33,7 @@
 #include "llvm/Transforms/Obfuscation/Flattening.h"
 #include "llvm/Transforms/Obfuscation/Split.h"
 #include "llvm/Transforms/Obfuscation/Substitution.h"
+#include "llvm/Transforms/Obfuscation/Dop.h"
 #include "llvm/CryptoUtils.h"
 
 using namespace llvm;
@@ -90,6 +91,9 @@ static cl::opt<bool> Flattening("fla", cl::init(false),
 
 static cl::opt<bool> BogusControlFlow("bcf", cl::init(false),
                                       cl::desc("Enable bogus control flow"));
+
+static cl::opt<bool> Dop("dop", cl::init(false),
+                                      cl::desc("Enable dynamic opaque predicate"));
 
 static cl::opt<bool> Substitution("sub", cl::init(false),
                                   cl::desc("Enable instruction substitutions"));
@@ -190,6 +194,7 @@ void PassManagerBuilder::populateModulePassManager(PassManagerBase &MPM) {
   MPM.add(createSplitBasicBlock(Split));
   MPM.add(createBogus(BogusControlFlow));
   MPM.add(createFlattening(Flattening));
+  MPM.add(createDop(Dop));
     
   // If all optimizations are disabled, just run the always-inline pass and,
   // if enabled, the function merging pass.
