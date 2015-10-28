@@ -37,8 +37,10 @@ namespace {
         void addDOP(Function &F) {
             bool firstStore = true;
             Value *covar;
+            BasicBlock *preBB, *postBB, *obfBB;
+            BasicBlock::iterator preBBend, obfBBend;
 
-            for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {       
+            for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
                 for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
                     unsigned opcode = i->getOpcode();
                     if (opcode == Instruction::Store) {
@@ -46,6 +48,7 @@ namespace {
                             errs() << "The first store: " << *i << "\n";
                             errs() << *i->getOperand(1)  << "\n";
                             covar = i->getOperand(1);
+                            preBBend = i;
                             // for(Value::use_iterator ui = i->use_begin(), ie = i->use_end(); ui != ie; ++ui){
                             //   Value *v = *ui;
                             //   Instruction *vi = dyn_cast<Instruction>(*ui);
@@ -57,18 +60,23 @@ namespace {
                             continue;
                         } else {
                             if (i->getOperand(1) == covar) {
+                                obfBBend = i;
                                 errs() << "    " << *i << "\n";
                             }
                         }
                     }
                 }
             }
+            Twine *var1 = new Twine("obfBB");
+            obfBB = bb->splitBasicBlock(preBBend, *var1);
+            Twine *var2 = new Twine("postBB");
+            postBB = bb->splitBasicBlock(obfBBend, *var2);
         }
     };
 }
 
 char Dop::ID = 0;
-static RegisterPass<Dop> X("Dop", "Dynamic opaque predicate obfuscation Pass", false, false);
+static RegisterPass<Dop> X("Dop", "Dynamic opaque predicate obfuscation Pass");
 
 Pass *llvm::createDop() {
   return new Dop();
