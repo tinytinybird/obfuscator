@@ -16,7 +16,7 @@ namespace {
 
         bool runOnFunction(Function &F) override {
             if(toObfuscate(flag,&F,"dop")) {
-                StringRef sr = new("fun");
+                StringRef sr = new StringRef("fun");
                 if (F.getName().equals(sr)) {
                     errs() << "Hello: ";
                     errs().write_escaped(F.getName()) << '\n';
