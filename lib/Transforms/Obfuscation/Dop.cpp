@@ -16,19 +16,21 @@ namespace {
 
         bool runOnFunction(Function &F) override {
             if(toObfuscate(flag,&F,"dop")) {
-                errs() << "Hello: ";
-                errs().write_escaped(F.getName()) << '\n';
-
-                addDOP(F);
-
-                return true;
+                StringRef sr = new("fun");
+                if (F.getName().equals(sr)) {
+                    errs() << "Hello: ";
+                    errs().write_escaped(F.getName()) << '\n';
+                    
+                    addDOP(F);
+                        
+                    return true;
 
                 // for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
                 //     for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
                 //         errs().write_escaped(i->getOpcodeName()) << '\n';
                 //     }
                 // }
-
+                }
             }
             return false;
         }
