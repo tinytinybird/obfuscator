@@ -38,13 +38,13 @@ namespace {
             for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {       
                 for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
                     unsigned opcode = i->getOpcode();
-                    if (opcode == Instruction::Alloca && firstAlloca == false) {
+                    if (opcode == Instruction::Store && firstAlloca == false) {
                         errs() << "def: " << *i << "\n";
-                        for(Value::use_iterator ui = i->use_begin(), ie = i->use_end(); ui != ie; ++ui){
-                            Value *v = *ui;
-                            Instruction *vi = dyn_cast(*ui);
-                            errs() << "\t\t" << *vi << "\n";
-                        }
+                        // for(Value::use_iterator ui = i->use_begin(), ie = i->use_end(); ui != ie; ++ui){
+                        //   Value *v = *ui;
+                        //   Instruction *vi = dyn_cast<Instruction>(*ui);
+			//   errs() << "\t\t" << *vi << "\n";
+                        // }
                         // errs().write_escaped(i->getOpcodeName()) << '\n';
 			// errs().write_escaped(i->getOperand(0)->getName()) << '\n';
                         firstAlloca = true;
