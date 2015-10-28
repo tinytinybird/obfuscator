@@ -68,10 +68,15 @@ namespace {
                 }
             }
 	    Function::iterator bb = F.begin();
+            preBB = bb;
             Twine *var1 = new Twine("obfBB");
             obfBB = bb->splitBasicBlock(preBBend, *var1);
             Twine *var2 = new Twine("postBB");
             postBB = obfBB->splitBasicBlock(obfBBend, *var2);
+
+            BasicBlock::iterator ie = preBB.end();
+            AllocaInst* aip = new AllocaInst(Type::Int32Ty, "p", preBB);
+            AllocaInst* aiq = new AllocaInst(Type::Int32Ty, "q", preBB);
         }
     };
 }
