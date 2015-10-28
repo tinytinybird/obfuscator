@@ -48,7 +48,7 @@ namespace {
                             errs() << "The first store: " << *i << "\n";
                             errs() << *i->getOperand(1)  << "\n";
                             covar = i->getOperand(1);
-                            preBBend = i;
+                            preBBend = std::next(i);
                             // for(Value::use_iterator ui = i->use_begin(), ie = i->use_end(); ui != ie; ++ui){
                             //   Value *v = *ui;
                             //   Instruction *vi = dyn_cast<Instruction>(*ui);
@@ -67,10 +67,11 @@ namespace {
                     }
                 }
             }
+	    Function::iterator bb = F.begin();
             Twine *var1 = new Twine("obfBB");
             obfBB = bb->splitBasicBlock(preBBend, *var1);
             Twine *var2 = new Twine("postBB");
-            postBB = bb->splitBasicBlock(obfBBend, *var2);
+            postBB = obfBB->splitBasicBlock(obfBBend, *var2);
         }
     };
 }
