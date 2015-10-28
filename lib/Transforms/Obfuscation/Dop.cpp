@@ -33,22 +33,31 @@ namespace {
             return false;
         }
         void addDOP(Function &F) {
-            bool firstAlloca = false;
+            bool firstStore = true;
+            Value *covar;
 
             for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {       
                 for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
                     unsigned opcode = i->getOpcode();
-                    if (opcode == Instruction::Store && firstAlloca == false) {
-                        errs() << "def: " << *i << "\n";
-                        // for(Value::use_iterator ui = i->use_begin(), ie = i->use_end(); ui != ie; ++ui){
-                        //   Value *v = *ui;
-                        //   Instruction *vi = dyn_cast<Instruction>(*ui);
-			//   errs() << "\t\t" << *vi << "\n";
-                        // }
-                        // errs().write_escaped(i->getOpcodeName()) << '\n';
-			// errs().write_escaped(i->getOperand(0)->getName()) << '\n';
-                        firstAlloca = true;
-			continue;
+                    if (opcode == Instruction::Store) {
+                        if (firstStore == true) {
+                            errs() << "The first store: " << *i << "\n";
+                            errs() << *i->getOperand(1)  << "\n";
+                            covar = i->getOperand(1);
+                            // for(Value::use_iterator ui = i->use_begin(), ie = i->use_end(); ui != ie; ++ui){
+                            //   Value *v = *ui;
+                            //   Instruction *vi = dyn_cast<Instruction>(*ui);
+                            //   errs() << "\t\t" << *vi << "\n";
+                            // }
+                            // errs().write_escaped(i->getOpcodeName()) << '\n';
+                            // errs().write_escaped(i->getOperand(0)->getName()) << '\n';
+                            firstStore = false;
+                            continue;
+                        } else {
+                            if (i->getOperand(1) == covar) {
+                                errs() << "    " << *i << "\n";
+                            }
+                        }
                     }
                 }
             }
