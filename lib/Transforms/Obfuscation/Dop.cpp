@@ -77,7 +77,7 @@ namespace {
 
             BasicBlock::iterator ii = std::next(insertAlloca);
             AllocaInst* dop1 = new AllocaInst(Type::getInt32PtrTy(getGlobalContext()), 0, 4, "dop1");
-            AllocaInst* dop2 = new AllocaInst(Type::getInt32PtrTy(getGlobalContext()), 0, 4, "dop2");
+            AllocaInst* dop2 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop2");
             preBB->getInstList().insert(ii, dop1);
             preBB->getInstList().insert(ii, dop2);
 
@@ -86,6 +86,14 @@ namespace {
 
             LoadInst* dop1ld = new LoadInst(dop1st, "", ii);
             LoadInst* dop2ld = new LoadInst(dop2st, "", ii);
+            LoadInst* dop1ld = new LoadInst(dop1st, "", ii);
+            LoadInst* dop2ld = new LoadInst(dop2st, "", ii);
+
+
+            Twine * var3 = new Twine("dopbrach1");
+            Value * rvalue = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
+            ICmpInst * dopbranch1 = new ICmpInst(*originalBB, CmpInst::ICMP_SGT , LHS, rvalue, *var3);
+            BranchInst::Create(originalBBpart2, alteredBB, (Value *)condition2, originalBB);
         }
     };
 }
