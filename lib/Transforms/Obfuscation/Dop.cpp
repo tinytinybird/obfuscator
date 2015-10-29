@@ -84,16 +84,16 @@ namespace {
             StoreInst* dop1st = new StoreInst(insertAlloca->getOperand(1), dop1, false, ii);
             StoreInst* dop2st = new StoreInst(insertAlloca->getOperand(1), dop2, false, ii);
 
-            LoadInst* dop1ld = new LoadInst(dop1st, "", ii);
-            LoadInst* dop2ld = new LoadInst(dop2st, "", ii);
-            LoadInst* dop1ld = new LoadInst(dop1st, "", ii);
-            LoadInst* dop2ld = new LoadInst(dop2st, "", ii);
+            LoadInst* dop1p = new LoadInst(dop1, "", false, 4, ii);
+            LoadInst* dop2p = new LoadInst(dop2, "", false, 4, ii);
+            LoadInst* dop1deref = new LoadInst(dop1p, "", false, 4, ii);
+            LoadInst* dop2deref = new LoadInst(dop2p, "", false, 4, ii);
 
-
-            Twine * var3 = new Twine("dopbrach1");
+            Twine * var3 = new Twine("dopbranch1");
             Value * rvalue = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
-            ICmpInst * dopbranch1 = new ICmpInst(*originalBB, CmpInst::ICMP_SGT , LHS, rvalue, *var3);
-            BranchInst::Create(originalBBpart2, alteredBB, (Value *)condition2, originalBB);
+            preBB->getTerminator()->eraseFromParent();
+            ICmpInst * dopbranch1 = new ICmpInst(*preBB, CmpInst::ICMP_SGT , dop1deref, rvalue, *var3);
+            BranchInst::Create(obfBB, postBB, dopbranch1, preBB);
         }
     };
 }
