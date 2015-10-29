@@ -98,6 +98,16 @@ namespace {
             preBB->getTerminator()->eraseFromParent();
             ICmpInst * dopbranch1 = new ICmpInst(*preBB, CmpInst::ICMP_SGT , dop1deref, rvalue, *var3);
             BranchInst::Create(obfBB, alterBB, dopbranch1, preBB);
+
+            BasicBlock::iterator splitpt1, splitpt2;
+            BasicBlock* obfBB2, alterBB2;
+            int num = 2;
+            for (splitpt1 = obfBB->begin(), BasicBlock::iterator e = obfBB->end(), int n = num; splitpt1 != e && n > 0; ++splitpt1, --n) ;
+            for (splitpt2 = alterBB->begin(), BasicBlock::iterator e = alterBB->end(), int n = num+1; splitpt2 != e && n > 0; ++splitpt2, --n) ;
+            Twine *var4 = new Twine("obfBB2");
+            obfBB2 = obfBB->splitBasicBlock(splitpt1, *var4);
+            Twine *var5 = new Twine("alterBB2");
+            alterBB2 = alterBB->splitBasicBlock(splitpt2, *var5);
         }
     };
 }
