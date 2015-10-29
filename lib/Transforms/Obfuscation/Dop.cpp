@@ -89,11 +89,15 @@ namespace {
             LoadInst* dop1deref = new LoadInst(dop1p, "", false, 4, ii);
             LoadInst* dop2deref = new LoadInst(dop2p, "", false, 4, ii);
 
+            const Twine & name = "alterBB";
+            ValueToValueMapTy VMap;
+            BasicBlock* alterBB = llvm::CloneBasicBlock(obfBB, VMap, alterBB, F);
+
             Twine * var3 = new Twine("dopbranch1");
             Value * rvalue = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
             preBB->getTerminator()->eraseFromParent();
             ICmpInst * dopbranch1 = new ICmpInst(*preBB, CmpInst::ICMP_SGT , dop1deref, rvalue, *var3);
-            BranchInst::Create(obfBB, postBB, dopbranch1, preBB);
+            BranchInst::Create(obfBB, alterBB, dopbranch1, preBB);
         }
     };
 }
