@@ -77,8 +77,8 @@ namespace {
 
             AllocaInst* dop1 = new AllocaInst(Type::getInt32Ty(getGlobalContext()), 0, 4, "dop1");
             AllocaInst* dop2 = new AllocaInst(Type::getInt32Ty(getGlobalContext()), 0, 4, "dop2");
-            preBB->getInstList().insert(insertAlloca, dop2);
-            preBB->getInstList().insert(insertAlloca, dop1);
+            preBB->getInstList().insert(std::next(insertAlloca), dop2);
+            preBB->getInstList().insert(std::next(insertAlloca), dop1);
         }
     };
 }
