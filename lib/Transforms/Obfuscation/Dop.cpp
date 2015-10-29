@@ -75,10 +75,14 @@ namespace {
             Twine *var2 = new Twine("postBB");
             postBB = obfBB->splitBasicBlock(obfBBend, *var2);
 
+            BasicBlock::iterator ii = std::next(insertAlloca);
             AllocaInst* dop1 = new AllocaInst(Type::getInt32Ty(getGlobalContext()), 0, 4, "dop1");
             AllocaInst* dop2 = new AllocaInst(Type::getInt32Ty(getGlobalContext()), 0, 4, "dop2");
-            preBB->getInstList().insert(std::next(insertAlloca), dop2);
-            preBB->getInstList().insert(std::next(insertAlloca), dop1);
+            preBB->getInstList().insert(ii, dop1);
+            preBB->getInstList().insert(ii, dop2);
+
+            StoreInst* dop1st = new StoreInst(insertAlloca->getOperand(1), dop1, false, ii);
+            StoreInst* dop2st = new StoreInst(insertAlloca->getOperand(1), dop2, false, ii);
         }
     };
 }
