@@ -89,9 +89,9 @@ namespace {
             LoadInst* dop1deref = new LoadInst(dop1p, "", false, 4, ii);
             LoadInst* dop2deref = new LoadInst(dop2p, "", false, 4, ii);
 
-            const Twine & name = "alterBB";
+            const Twine & name = "clone";
             ValueToValueMapTy VMap;
-            BasicBlock* alterBB = llvm::CloneBasicBlock(obfBB, VMap, alterBB, F);
+            BasicBlock* alterBB = llvm::CloneBasicBlock(obfBB, VMap, name, &F);
 
             Twine * var3 = new Twine("dopbranch1");
             Value * rvalue = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
