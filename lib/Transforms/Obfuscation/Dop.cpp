@@ -76,8 +76,8 @@ namespace {
             postBB = obfBB->splitBasicBlock(obfBBend, *var2);
 
             BasicBlock::iterator ii = std::next(insertAlloca);
-            AllocaInst* dop1 = new AllocaInst(Type::getInt32Ty(getGlobalContext()), 0, 4, "dop1");
-            AllocaInst* dop2 = new AllocaInst(Type::getInt32Ty(getGlobalContext()), 0, 4, "dop2");
+            AllocaInst* dop1 = new AllocaInst(Type::getInt32PtrTy(getGlobalContext()), 0, 4, "dop1");
+            AllocaInst* dop2 = new AllocaInst(Type::getInt32PtrTy(getGlobalContext()), 0, 4, "dop2");
             preBB->getInstList().insert(ii, dop1);
             preBB->getInstList().insert(ii, dop2);
 
