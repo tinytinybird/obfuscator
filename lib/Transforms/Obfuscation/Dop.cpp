@@ -83,6 +83,9 @@ namespace {
 
             StoreInst* dop1st = new StoreInst(insertAlloca->getOperand(1), dop1, false, ii);
             StoreInst* dop2st = new StoreInst(insertAlloca->getOperand(1), dop2, false, ii);
+
+            LoadInst* dop1ld = new LoadInst(dop1st, "", ii);
+            LoadInst* dop2ld = new LoadInst(dop2st, "", ii);
         }
     };
 }
