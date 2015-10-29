@@ -38,7 +38,7 @@ namespace {
             bool firstStore = true;
             Value *covar;
             BasicBlock *preBB, *postBB, *obfBB;
-            BasicBlock::iterator preBBend, obfBBend;
+            BasicBlock::iterator preBBend, obfBBend, insertAlloca;
 
             for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
                 for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
@@ -48,6 +48,7 @@ namespace {
                             errs() << "The first store: " << *i << "\n";
                             errs() << *i->getOperand(1)  << "\n";
                             covar = i->getOperand(1);
+                            insertAlloca = i;
                             preBBend = std::next(i);
                             // for(Value::use_iterator ui = i->use_begin(), ie = i->use_end(); ui != ie; ++ui){
                             //   Value *v = *ui;
@@ -74,9 +75,10 @@ namespace {
             Twine *var2 = new Twine("postBB");
             postBB = obfBB->splitBasicBlock(obfBBend, *var2);
 
-            BasicBlock::iterator ie = preBB->end();
-            AllocaInst* aip = new AllocaInst(Type::getInt32Ty(getGlobalContext()), "p", preBB);
-            AllocaInst* aiq = new AllocaInst(Type::getInt32Ty(getGlobalContext()), "q", preBB);
+            AllocaInst* dop1 = new AllocaInst(Type::getInt32Ty(getGlobalContext()), 0, 4, "dop1");
+            AllocaInst* dop2 = new AllocaInst(Type::getInt32Ty(getGlobalContext()), 0, 4, "dop2");
+            preBB->getInstList().insert(insertAlloca, dop2);
+            preBB->getInstList().insert(insertAlloca, dop1);
         }
     };
 }
