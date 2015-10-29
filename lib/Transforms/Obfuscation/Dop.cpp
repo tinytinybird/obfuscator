@@ -109,8 +109,20 @@ namespace {
             for (BasicBlock::iterator e = alterBB->end(); splitpt2 != e && n > 0; ++splitpt2, --n) ;
             Twine *var4 = new Twine("obfBB2");
             obfBB2 = obfBB->splitBasicBlock(splitpt1, *var4);
-            Twine *var5 = new Twine("alterBB2");
+            Twine *var5 = new Twine("obfBBclone2");
             alterBB2 = alterBB->splitBasicBlock(splitpt2, *var5);
+
+            BasicBlock* dop2BB = BasicBlock::Create(F.getContext(), "dop2BB", &F, obfBB2);
+            Twine * var6 = new Twine("dopbranch2");
+            Value * rvalue2 = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
+            dop2BB->getTerminator()->eraseFromParent();
+            ICmpInst * dopbranch2 = new ICmpInst(*dop2BB, CmpInst::ICMP_SGT , dop2deref, rvalue, *var3);
+            BranchInst::Create(obfBB2, alterBB2, dopbranch2, dop2BB);
+            
+            obfBB->getTerminator()->eraseFromParent();
+            BranchInst::Create(dop2BB, obfBB);
+            alterBB->getTerminator()->eraseFromParent();
+            BranchInst::Create(dop2BB, alterBB);
         }
     };
 }
