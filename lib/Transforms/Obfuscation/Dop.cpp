@@ -74,9 +74,9 @@ namespace {
             Twine *var2 = new Twine("postBB");
             postBB = obfBB->splitBasicBlock(obfBBend, *var2);
 
-            BasicBlock::iterator ie = preBB.end();
-            AllocaInst* aip = new AllocaInst(Type::Int32Ty, "p", preBB);
-            AllocaInst* aiq = new AllocaInst(Type::Int32Ty, "q", preBB);
+            BasicBlock::iterator ie = preBB->end();
+            AllocaInst* aip = new AllocaInst(Type::getInt32Ty(getGlobalContext()), "p", preBB);
+            AllocaInst* aiq = new AllocaInst(Type::getInt32Ty(getGlobalContext()), "q", preBB);
         }
     };
 }
