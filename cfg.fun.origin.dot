@@ -1,0 +1,5 @@
+digraph "CFG for 'fun' function" {
+	label="CFG for 'fun' function";
+
+	Node0xa55dc40 [shape=record,label="{%0:\l  %1 = alloca i32, align 4\l  %2 = alloca i32, align 4\l  %c = alloca i32, align 4\l  %p = alloca i32*, align 4\l  store i32 %a, i32* %1, align 4\l  store i32 %b, i32* %2, align 4\l  store i32* %1, i32** %p, align 4\l  %3 = load i32* %2, align 4\l  %4 = mul nsw i32 3, %3\l  %5 = add nsw i32 %4, 1\l  store i32 %5, i32* %1, align 4\l  %6 = load i32** %p, align 4\l  %7 = load i32* %6, align 4\l  %8 = load i32* %2, align 4\l  %9 = mul nsw i32 2, %8\l  %10 = add nsw i32 %7, %9\l  %11 = load i32* %1, align 4\l  %12 = load i32* %2, align 4\l  %13 = mul nsw i32 %11, %12\l  %14 = sub nsw i32 %10, %13\l  store i32 %14, i32* %c, align 4\l  %15 = load i32* %c, align 4\l  ret i32 %15\l}"];
+}
