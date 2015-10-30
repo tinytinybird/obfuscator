@@ -99,6 +99,17 @@ namespace {
             ValueToValueMapTy VMap;
             BasicBlock* alterBB = llvm::CloneBasicBlock(obfBB, VMap, name, &F);
 
+            for (BasicBlock::iterator i = alterBB->begin(), e = alterBB->end() ; i != e; ++i) {
+                // Loop over the operands of the instruction
+                for(User::op_iterator opi = i->op_begin (), ope = i->op_end(); opi != ope; ++opi) {
+                    // get the value for the operand
+                    Value *v = MapValue(*opi, VMap,  RF_None, 0);
+                    if (v != 0){
+                        *opi = v;
+                    }
+                }
+            }
+
             // create the first dop at the end of preBB
             Twine * var3 = new Twine("dopbranch1");
             Value * rvalue = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
@@ -133,6 +144,7 @@ namespace {
             BranchInst::Create(dop2BB, obfBB);
             alterBB->getTerminator()->eraseFromParent();
             BranchInst::Create(dop2BB, alterBB);
+
         }
     };
 }
