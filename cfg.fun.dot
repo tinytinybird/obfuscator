@@ -1,0 +1,19 @@
+digraph "CFG for 'fun' function" {
+	label="CFG for 'fun' function";
+
+	Node0x9fcdce8 [shape=record,label="{%0:\l  %1 = alloca i32, align 4\l  %2 = alloca i32, align 4\l  %c = alloca i32, align 4\l  %p = alloca i32*, align 4\l  store i32 %a, i32* %1, align 4\l  %dop1 = alloca i32*, align 4\l  %dop2 = alloca i32*, align 4\l  store i32* %1, i32** %dop1\l  store i32* %1, i32** %dop2\l  %3 = load i32** %dop1, align 4\l  %4 = load i32** %dop2, align 4\l  %5 = load i32* %3, align 4\l  %6 = load i32* %4, align 4\l  %dopbranch1 = icmp sgt i32 %5, 0\l  br i1 %dopbranch1, label %obfBB, label %obfBBclone\l|{<s0>T|<s1>F}}"];
+	Node0x9fcdce8:s0 -> Node0x9fcdd18;
+	Node0x9fcdce8:s1 -> Node0x9fcddd8;
+	Node0x9fcdd18 [shape=record,label="{obfBB:                                            \l  store i32 %b, i32* %2, align 4\l  store i32* %1, i32** %p, align 4\l  br label %dop2BB\l}"];
+	Node0x9fcdd18 -> Node0x9fcdd48;
+	Node0x9fcdd48 [shape=record,label="{dop2BB:                                           \l  %dopbranch11 = icmp sgt i32 %6, 0\l  br i1 %dopbranch11, label %obfBB2, label %obfBBclone2\l|{<s0>T|<s1>F}}"];
+	Node0x9fcdd48:s0 -> Node0x9fcdd78;
+	Node0x9fcdd48:s1 -> Node0x9fcde08;
+	Node0x9fcdd78 [shape=record,label="{obfBB2:                                           \l  %7 = load i32* %2, align 4\l  %8 = mul nsw i32 3, %7\l  %9 = add nsw i32 %8, 1\l  br label %postBB\l}"];
+	Node0x9fcdd78 -> Node0x9fcdda8;
+	Node0x9fcdda8 [shape=record,label="{postBB:                                           \l  store i32 %9, i32* %1, align 4\l  %10 = load i32** %p, align 4\l  %11 = load i32* %10, align 4\l  %12 = load i32* %2, align 4\l  %13 = mul nsw i32 2, %12\l  %14 = add nsw i32 %11, %13\l  %15 = load i32* %1, align 4\l  %16 = load i32* %2, align 4\l  %17 = mul nsw i32 %15, %16\l  %18 = sub nsw i32 %14, %17\l  store i32 %18, i32* %c, align 4\l  %19 = load i32* %c, align 4\l  ret i32 %19\l}"];
+	Node0x9fcddd8 [shape=record,label="{obfBBclone:                                       \l  store i32 %b, i32* %2, align 4\l  store i32* %1, i32** %p, align 4\l  %20 = load i32* %2, align 4\l  br label %dop2BB\l}"];
+	Node0x9fcddd8 -> Node0x9fcdd48;
+	Node0x9fcde08 [shape=record,label="{obfBBclone2:                                      \l  %21 = mul nsw i32 3, %7\l  %22 = add nsw i32 %8, 1\l  br label %postBB\l}"];
+	Node0x9fcde08 -> Node0x9fcdda8;
+}
