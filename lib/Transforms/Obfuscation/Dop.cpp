@@ -40,6 +40,8 @@ namespace {
             BasicBlock *preBB, *postBB, *obfBB;
             BasicBlock::iterator preBBend, obfBBend, insertAlloca;
 
+            // split the snippet between two store instructions of a variable
+            // the snippet is obfBB
             for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
                 for (BasicBlock::iterator i = bb->begin(), e = bb->end(); i != e; ++i) {
                     unsigned opcode = i->getOpcode();
@@ -75,30 +77,36 @@ namespace {
             Twine *var2 = new Twine("postBB");
             postBB = obfBB->splitBasicBlock(obfBBend, *var2);
 
+            // insert allca for the dop pointers
             BasicBlock::iterator ii = std::next(insertAlloca);
             AllocaInst* dop1 = new AllocaInst(Type::getInt32PtrTy(getGlobalContext()), 0, 4, "dop1");
             AllocaInst* dop2 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop2");
             preBB->getInstList().insert(ii, dop1);
             preBB->getInstList().insert(ii, dop2);
 
+            // store the variable's address to the dop pointers
             StoreInst* dop1st = new StoreInst(insertAlloca->getOperand(1), dop1, false, ii);
             StoreInst* dop2st = new StoreInst(insertAlloca->getOperand(1), dop2, false, ii);
 
+            // load the variables' value
             LoadInst* dop1p = new LoadInst(dop1, "", false, 4, ii);
             LoadInst* dop2p = new LoadInst(dop2, "", false, 4, ii);
             LoadInst* dop1deref = new LoadInst(dop1p, "", false, 4, ii);
             LoadInst* dop2deref = new LoadInst(dop2p, "", false, 4, ii);
 
+            // create alter BB from cloneing the obfBB
             const Twine & name = "clone";
             ValueToValueMapTy VMap;
             BasicBlock* alterBB = llvm::CloneBasicBlock(obfBB, VMap, name, &F);
 
+            // create the first dop at the end of preBB
             Twine * var3 = new Twine("dopbranch1");
             Value * rvalue = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
             preBB->getTerminator()->eraseFromParent();
             ICmpInst * dopbranch1 = new ICmpInst(*preBB, CmpInst::ICMP_SGT , dop1deref, rvalue, *var3);
             BranchInst::Create(obfBB, alterBB, dopbranch1, preBB);
 
+            // split the obfBB and alterBB with an offset
             BasicBlock::iterator splitpt1 = obfBB->begin(),
 	                         splitpt2 = alterBB->begin();
             BasicBlock *obfBB2, *alterBB2;
@@ -112,6 +120,7 @@ namespace {
             Twine *var5 = new Twine("obfBBclone2");
             alterBB2 = alterBB->splitBasicBlock(splitpt2, *var5);
 
+            // create the second dop as a separate BB
             BasicBlock* dop2BB = BasicBlock::Create(F.getContext(), "dop2BB", &F, obfBB2);
             Twine * var6 = new Twine("dopbranch2");
             Value * rvalue2 = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
@@ -119,6 +128,7 @@ namespace {
             ICmpInst * dopbranch2 = new ICmpInst(*dop2BB, CmpInst::ICMP_SGT , dop2deref, rvalue, *var3);
             BranchInst::Create(obfBB2, alterBB2, dopbranch2, dop2BB);
             
+            // connect obfBB and alterBB to the second dop
             obfBB->getTerminator()->eraseFromParent();
             BranchInst::Create(dop2BB, obfBB);
             alterBB->getTerminator()->eraseFromParent();
