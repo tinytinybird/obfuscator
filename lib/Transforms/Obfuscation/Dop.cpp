@@ -110,6 +110,14 @@ namespace {
                 }
             }
 
+            ValueToValueMapTy fixssa;
+            for (BasicBlock::iterator i = obfBB->begin(), j = alter->begin(),
+                                      e = obf->end(), f = alter->begin(); i != e && j != f; ++i, ++j) {
+                fixssa[i] = j;
+            }
+            for (ValueToValueMapTy::iterator it = fixssa->begin(), e = fixssa->end(); i != e; ++i)
+                errs() << "    " << *it << "\n";
+
             // create the first dop at the end of preBB
             Twine * var3 = new Twine("dopbranch1");
             Value * rvalue = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
