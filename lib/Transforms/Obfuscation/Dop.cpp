@@ -110,13 +110,17 @@ namespace {
                 }
             }
 
-            ValueToValueMapTy fixssa;
-            for (BasicBlock::iterator i = obfBB->begin(), j = alter->begin(),
-                                      e = obf->end(), f = alter->begin(); i != e && j != f; ++i, ++j) {
-                fixssa[i] = j;
+	    std::map<Instruction*, Instruction*> fixssa;
+            for (BasicBlock::iterator i = obfBB->begin(), j = alterBB->begin(),
+                                      e = obfBB->end(), f = alterBB->end(); i != e && j != f; ++i, ++j) {
+	      errs() << "install fix ssa:" << "\n";
+	      fixssa[i] = j;
             }
-            for (ValueToValueMapTy::iterator it = fixssa->begin(), e = fixssa->end(); i != e; ++i)
-                errs() << "    " << *it << "\n";
+            for (std::map<Instruction*, Instruction*>::iterator it = fixssa.begin(), e = fixssa.end(); it != e; ++it) {
+	      errs() << "print fix ssa:" << "\n";
+	      errs() << "    " << it->first->getOpcodeName() << "\n";
+	      errs() << "    " << it->second->getOpcodeName() << "\n";
+	    }
 
             // create the first dop at the end of preBB
             Twine * var3 = new Twine("dopbranch1");
