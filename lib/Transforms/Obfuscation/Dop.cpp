@@ -164,10 +164,12 @@ namespace {
                 for(User::op_iterator opi = i->op_begin (), ope = i->op_end(); opi != ope; ++opi) {
                     Instruction *p, *q;
                     Instruction *vi = dyn_cast<Instruction>(*opi);
-                    if ((p = fixssa.find(vi)) != fixssa.end()) {
+                    if (fixssa.find(vi) != fixssa.end()) {
                         PHINode *fixnode;
-                        if ((q = insertedPHI.find(vi)) == insertedPHI.end()) {
-                            fixnode = PHINode::Create(opi->getType(), 2, "", ii);
+                        p = fixssa[vi];
+                        if (insertedPHI.find(vi) == insertedPHI.end()) {
+                            q = insertedPHI[vi];
+                            fixnode = PHINode::Create(vi->getType(), 2, "", ii);
                             fixnode.addIncoming(vi, vi->getParent());
                             fixnode.addIncoming(p, p->getParent());
                             insertedPHI[vi] = fixnode;
