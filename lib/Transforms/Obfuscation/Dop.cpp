@@ -88,11 +88,10 @@ namespace {
             StoreInst* dop1st = new StoreInst(insertAlloca->getOperand(1), dop1, false, ii);
             StoreInst* dop2st = new StoreInst(insertAlloca->getOperand(1), dop2, false, ii);
 
-            // load the variables' value
+            // load the dop1's value
             LoadInst* dop1p = new LoadInst(dop1, "", false, 4, ii);
-            LoadInst* dop2p = new LoadInst(dop2, "", false, 4, ii);
             LoadInst* dop1deref = new LoadInst(dop1p, "", false, 4, ii);
-            LoadInst* dop2deref = new LoadInst(dop2p, "", false, 4, ii);
+
 
             // create alter BB from cloneing the obfBB
             const Twine & name = "clone";
@@ -155,6 +154,9 @@ namespace {
 
             // create the second dop as a separate BB
             BasicBlock* dop2BB = BasicBlock::Create(F.getContext(), "dop2BB", &F, obfBB2);
+            ii = dop2BB->begin();
+            LoadInst* dop2p = new LoadInst(dop2, "", false, 4, ii);
+            LoadInst* dop2deref = new LoadInst(dop2p, "", false, 4, ii);
             Twine * var6 = new Twine("dopbranch2");
             Value * rvalue2 = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
             // dop2BB->getTerminator()->eraseFromParent();
