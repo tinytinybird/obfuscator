@@ -154,9 +154,8 @@ namespace {
 
             // create the second dop as a separate BB
             BasicBlock* dop2BB = BasicBlock::Create(F.getContext(), "dop2BB", &F, obfBB2);
-            ii = dop2BB->begin();
-            LoadInst* dop2p = new LoadInst(dop2, "", false, 4, ii);
-            LoadInst* dop2deref = new LoadInst(dop2p, "", false, 4, ii);
+            LoadInst* dop2p = new LoadInst(dop2, "", false, 4, dop2BB);
+            LoadInst* dop2deref = new LoadInst(dop2p, "", false, 4, dop2BB);
             Twine * var6 = new Twine("dopbranch2");
             Value * rvalue2 = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
             // dop2BB->getTerminator()->eraseFromParent();
