@@ -110,17 +110,18 @@ namespace {
                 }
             }
 
+            // Map instructions in obfBB and alterBB
 	    std::map<Instruction*, Instruction*> fixssa;
             for (BasicBlock::iterator i = obfBB->begin(), j = alterBB->begin(),
                                       e = obfBB->end(), f = alterBB->end(); i != e && j != f; ++i, ++j) {
 	      errs() << "install fix ssa:" << "\n";
 	      fixssa[i] = j;
             }
-            for (std::map<Instruction*, Instruction*>::iterator it = fixssa.begin(), e = fixssa.end(); it != e; ++it) {
-	      errs() << "print fix ssa:" << "\n";
-	      errs() << "    " << it->first->getOpcodeName() << "\n";
-	      errs() << "    " << it->second->getOpcodeName() << "\n";
-	    }
+            // for (std::map<Instruction*, Instruction*>::iterator it = fixssa.begin(), e = fixssa.end(); it != e; ++it) {
+	    //   errs() << "print fix ssa:" << "\n";
+	    //   errs() << "    " << it->first->getOpcodeName() << "\n";
+	    //   errs() << "    " << it->second->getOpcodeName() << "\n";
+	    // }
 
             // create the first dop at the end of preBB
             Twine * var3 = new Twine("dopbranch1");
@@ -156,6 +157,26 @@ namespace {
             BranchInst::Create(dop2BB, obfBB);
             alterBB->getTerminator()->eraseFromParent();
             BranchInst::Create(dop2BB, alterBB);
+
+            ii = postBB->begin();
+            std::map<Instruction*, PHINode*> insertedPHI;
+            for (BasicBlock::iterator i = postBB->begin(), e = postBB->end() ; i != e; ++i) {
+                for(User::op_iterator opi = i->op_begin (), ope = i->op_end(); opi != ope; ++opi) {
+                    Instruction *p, *q;
+                    if ((p = fixssa.find(*opi)) != fixssa.end()) {
+                        PHINode *fixnode;
+                        if ((q = insertedPHI.find(*opi)) == insertedPHI.end()) {
+                            fixnode = PHINode::Create(opi->getType(), 2, "", ii);
+                            fixnode.addIncoming(*opi, (*opi)->getParent());
+                            fixnode.addIncoming(p, p->getParent());
+                            insertedPHI[*opi] = fixnode;
+                        } else {
+                            fixnode = q;
+                        }
+                        *opi = (Value*)fixnode;
+                    }
+                }
+            }
 
         }
     };
