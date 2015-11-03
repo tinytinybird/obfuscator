@@ -172,16 +172,17 @@ namespace {
             std::map<Instruction*, PHINode*> insertedPHI;
             for (BasicBlock::iterator i = postBB->begin(), e = postBB->end() ; i != e; ++i) {
                 for(User::op_iterator opi = i->op_begin (), ope = i->op_end(); opi != ope; ++opi) {
-                    Instruction *p, *q;
+                    Instruction *p;
                     Instruction *vi = dyn_cast<Instruction>(*opi);
+		    PHINode *q;
                     if (fixssa.find(vi) != fixssa.end()) {
                         PHINode *fixnode;
                         p = fixssa[vi];
                         if (insertedPHI.find(vi) == insertedPHI.end()) {
                             q = insertedPHI[vi];
                             fixnode = PHINode::Create(vi->getType(), 2, "", ii);
-                            fixnode.addIncoming(vi, vi->getParent());
-                            fixnode.addIncoming(p, p->getParent());
+                            fixnode->addIncoming(vi, vi->getParent());
+                            fixnode->addIncoming(p, p->getParent());
                             insertedPHI[vi] = fixnode;
                         } else {
                             fixnode = q;
