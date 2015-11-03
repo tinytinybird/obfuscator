@@ -158,6 +158,7 @@ namespace {
             alterBB->getTerminator()->eraseFromParent();
             BranchInst::Create(dop2BB, alterBB);
 
+            // insert phi node and update uses in postBB
             ii = postBB->begin();
             std::map<Instruction*, PHINode*> insertedPHI;
             for (BasicBlock::iterator i = postBB->begin(), e = postBB->end() ; i != e; ++i) {
