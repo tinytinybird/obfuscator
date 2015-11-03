@@ -163,7 +163,7 @@ namespace {
             for (BasicBlock::iterator i = postBB->begin(), e = postBB->end() ; i != e; ++i) {
                 for(User::op_iterator opi = i->op_begin (), ope = i->op_end(); opi != ope; ++opi) {
                     Instruction *p, *q;
-                    Instruction *vi = dyn_cast(*opi);
+                    Instruction *vi = dyn_cast<Instruction>(*opi);
                     if ((p = fixssa.find(vi)) != fixssa.end()) {
                         PHINode *fixnode;
                         if ((q = insertedPHI.find(vi)) == insertedPHI.end()) {
