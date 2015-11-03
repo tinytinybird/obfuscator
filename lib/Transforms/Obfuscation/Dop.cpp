@@ -163,13 +163,14 @@ namespace {
             for (BasicBlock::iterator i = postBB->begin(), e = postBB->end() ; i != e; ++i) {
                 for(User::op_iterator opi = i->op_begin (), ope = i->op_end(); opi != ope; ++opi) {
                     Instruction *p, *q;
-                    if ((p = fixssa.find(*opi)) != fixssa.end()) {
+                    Instruction *vi = dyn_cast(*opi);
+                    if ((p = fixssa.find(vi)) != fixssa.end()) {
                         PHINode *fixnode;
-                        if ((q = insertedPHI.find(*opi)) == insertedPHI.end()) {
+                        if ((q = insertedPHI.find(vi)) == insertedPHI.end()) {
                             fixnode = PHINode::Create(opi->getType(), 2, "", ii);
-                            fixnode.addIncoming(*opi, (*opi)->getParent());
+                            fixnode.addIncoming(vi, vi->getParent());
                             fixnode.addIncoming(p, p->getParent());
-                            insertedPHI[*opi] = fixnode;
+                            insertedPHI[vi] = fixnode;
                         } else {
                             fixnode = q;
                         }
