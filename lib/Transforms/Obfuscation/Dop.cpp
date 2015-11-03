@@ -121,7 +121,7 @@ namespace {
             for (BasicBlock::iterator i = alterBB->begin(), e = alterBB->end() ; i != e; ++i) {
                 for (User::op_iterator opi = i->op_begin(), ope = i->op_end(); opi != ope; ++opi) {
                     Instruction *vi = dyn_cast<Instruction>(*opi);
-                    if (fixssa->find(vi) != fixssa->end()) {
+                    if (fixssa.find(vi) != fixssa.end()) {
                         *opi = (Value*)fixssa[vi];
                     }
                 }
