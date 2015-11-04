@@ -207,8 +207,8 @@ namespace {
         void addDopBranch(Function &F) {
             BranchInst *ibr;
             for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
-                ibr = dyn_cast<BranchInst>(*bb->getTerminator());
-                if (ibr && ibr->IsConditional()) {
+                ibr = dyn_cast<BranchInst>(bb->getTerminator());
+                if (ibr && ibr->isConditional()) {
                     errs() << "find a branch in BB" << "\n";
                 }
             }
