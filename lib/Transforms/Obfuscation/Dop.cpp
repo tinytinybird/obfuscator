@@ -217,7 +217,7 @@ namespace {
     };
 }
 
-char Dop::ID = 0;
+char DopSeq::ID = 0;
 static RegisterPass<DopSeq> X("DopSeq", "Dynamic opaque predicate obfuscation Pass for straight line code");
 
 Pass *llvm::createDopSeq() {
