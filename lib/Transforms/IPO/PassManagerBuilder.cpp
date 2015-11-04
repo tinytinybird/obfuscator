@@ -92,8 +92,10 @@ static cl::opt<bool> Flattening("fla", cl::init(false),
 static cl::opt<bool> BogusControlFlow("bcf", cl::init(false),
                                       cl::desc("Enable bogus control flow"));
 
-static cl::opt<bool> Dop("dop", cl::init(false),
-                                      cl::desc("Enable dynamic opaque predicate"));
+static cl::opt<bool> Dop("dopseq", cl::init(false),
+                                      cl::desc("Enable dynamic opaque predicate for a sequence code"));
+static cl::opt<bool> Dop("dopbr", cl::init(false),
+                                      cl::desc("Enable dynamic opaque predicate for branches"));
 
 static cl::opt<bool> Substitution("sub", cl::init(false),
                                   cl::desc("Enable instruction substitutions"));
