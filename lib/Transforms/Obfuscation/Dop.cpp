@@ -8,11 +8,11 @@
 using namespace llvm;
 
 namespace {
-    struct Dop : public FunctionPass {
+    struct DopSeq : public FunctionPass {
         static char ID;
         bool flag;
-        Dop() : FunctionPass(ID) {}
-        Dop(bool flag) : FunctionPass(ID) {this->flag = flag; Dop();}
+        DopSeq() : FunctionPass(ID) {}
+        DopSeq(bool flag) : FunctionPass(ID) {this->flag = flag; DopSeq();}
 
         bool runOnFunction(Function &F) override {
             if(toObfuscate(flag,&F,"dopseq")) {
@@ -218,12 +218,12 @@ namespace {
 }
 
 char Dop::ID = 0;
-static RegisterPass<Dop> X("Dop", "Dynamic opaque predicate obfuscation Pass");
+static RegisterPass<DopSeq> X("DopSeq", "Dynamic opaque predicate obfuscation Pass for straight line code");
 
-Pass *llvm::createDop() {
-  return new Dop();
+Pass *llvm::createDopSeq() {
+  return new DopSeq();
 }
 
-Pass *llvm::createDop(bool flag) {
-  return new Dop(flag);
+Pass *llvm::createDopSeq(bool flag) {
+  return new DopSeq(flag);
 }
