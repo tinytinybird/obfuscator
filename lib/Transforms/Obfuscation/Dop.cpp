@@ -15,13 +15,13 @@ namespace {
         Dop(bool flag) : FunctionPass(ID) {this->flag = flag; Dop();}
 
         bool runOnFunction(Function &F) override {
-            if(toObfuscate(flag,&F,"dop")) {
+            if(toObfuscate(flag,&F,"dopseq")) {
                 StringRef *sr = new StringRef("fun");
                 if (F.getName().equals(*sr)) {
                     errs() << "Hello: ";
                     errs().write_escaped(F.getName()) << '\n';
                     
-                    addDOP(F);
+                    addDopSeq(F);
                         
                     return true;
 
@@ -31,10 +31,18 @@ namespace {
                 //     }
                 // }
                 }
+            } else if(toObfuscate(flag,&F,"dopbr")) {
+                StringRef *sr = new StringRef("fun");
+                if (F.getName().equals(*sr)) {
+                    addDopBranch(F);
+                    return true;
+                }
             }
             return false;
         }
-        void addDOP(Function &F) {
+
+        // add dynamic opaque predicate to sequential code
+        void addDopSeq(Function &F) {
             bool firstStore = true;
             Value *covar;
             BasicBlock *preBB, *postBB, *obfBB;
@@ -113,7 +121,7 @@ namespace {
 	    std::map<Instruction*, Instruction*> fixssa;
             for (BasicBlock::iterator i = obfBB->begin(), j = alterBB->begin(),
                                       e = obfBB->end(), f = alterBB->end(); i != e && j != f; ++i, ++j) {
-	      errs() << "install fix ssa:" << "\n";
+	      // errs() << "install fix ssa:" << "\n";
 	      fixssa[i] = j;
             }
             // Fix use values in alterBB
@@ -190,6 +198,18 @@ namespace {
                         }
                         *opi = (Value*)fixnode;
                     }
+                }
+            }
+
+        }
+
+        // add dynamic opaque predicates to 
+        void addDopBranch(Function &F) {
+            BranchInst *ibr;
+            for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
+                ibr = dyn_cast<BranchInst>(*bb->getTerminator());
+                if (ibr && ibr->IsConditional()) {
+                    errs() << "find a branch in BB" << "\n";
                 }
             }
 
