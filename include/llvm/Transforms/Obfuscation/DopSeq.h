@@ -11,8 +11,8 @@
 //
 //===--------------------------------------------------------------------------------===//
 
-#ifndef _DOP_H_
-#define _DOP_H_
+#ifndef _DOPSEQ_H_
+#define _DOPSEQ_H_
 
 
 // LLVM include
