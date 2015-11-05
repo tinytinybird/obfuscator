@@ -31,12 +31,6 @@ namespace {
                 //     }
                 // }
                 }
-            } else if(toObfuscate(flag,&F,"dopbr")) {
-                StringRef *sr = new StringRef("fun");
-                if (F.getName().equals(*sr)) {
-                    addDopBranch(F);
-                    return true;
-                }
             }
             return false;
         }
@@ -203,17 +197,6 @@ namespace {
 
         }
 
-        // add dynamic opaque predicates to 
-        void addDopBranch(Function &F) {
-            BranchInst *ibr;
-            for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
-                ibr = dyn_cast<BranchInst>(bb->getTerminator());
-                if (ibr && ibr->isConditional()) {
-                    errs() << "find a branch in BB" << "\n";
-                }
-            }
-
-        }
     };
 }
 
