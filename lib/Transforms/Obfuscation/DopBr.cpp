@@ -35,6 +35,44 @@ namespace {
                 }
             }
         }
+
+        // build dependence
+        void builddep(Instruction *iuse, std::set<Instruction *> *idep) {
+            for (User::op_iterator opi = i->op_begin(), ope = i->op_end(); opi != ope; ++opi) {
+                Instruction *vi = dyn_cast<Instruction>(*opi);
+                if (vi == NULL) return;
+                else {
+                    switch (vi->getOpcode()) {
+                    case Instruction::Add:
+                        idep->insert(vi);
+                        builddep(vi->getOperand(0), idep);
+                        builddep(vi->getOperand(1), idep);
+                        return;
+                    case Instruction::Sub:
+                        idep->insert(vi);
+                        builddep(vi->getOperand(0), idep);
+                        builddep(vi->getOperand(1), idep);
+                        return;
+                    case Instruction::Mul:
+                        idep->insert(vi);
+                        builddep(vi->getOperand(0), idep);
+                        builddep(vi->getOperand(1), idep);
+                        return;
+                    case Instruction::Br:
+                        idep->insert(vi);
+                        builddep(vi->getOperand(0), idep);
+                        return;
+                    case Instruction::Load:
+                        BasicBlock::iterator i = vi;
+                        for (BasicBlock::iterator j = vi->getParent()->begin(); i != j; --i) {
+                            if (i->getOpcode() == Instruction::Store && i->getOperand(1) == )
+                        }
+                        idep->insert(vi);
+                        return;
+                    }
+                }
+            }
+        }
     };
 }
 
