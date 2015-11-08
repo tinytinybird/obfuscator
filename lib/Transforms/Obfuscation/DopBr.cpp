@@ -62,39 +62,47 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
                 builddep(op1, idep);
                 return;
             case Instruction::Sub:
-                idep->insert(vi);
-                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(0)), idep);
-                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(1)), idep);
+                idep.insert(vi);
+                op0 = dyn_cast<Instruction>(*vi->getOperand(0));
+                op1 = dyn_cast<Instruction>(*vi->getOperand(1));
+                builddep(op0, idep);
+                builddep(op1, idep);
                 return;
             case Instruction::Mul:
-                idep->insert(vi);
-                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(0)), idep);
-                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(1)), idep);
+                idep.insert(vi);
+                op0 = dyn_cast<Instruction>(*vi->getOperand(0));
+                op1 = dyn_cast<Instruction>(*vi->getOperand(1));
+                builddep(op0, idep);
+                builddep(op1, idep);
                 return;
             case Instruction::Br:
-                idep->insert(vi);
-                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(0)), idep);
+                idep.insert(vi);
+                op0 = dyn_cast<Instruction>(*vi->getOperand(0));
+                builddep(op0, idep);
                 return;
             case Instruction::Load:
-                idep->insert(vi);
+                idep.insert(vi);
                 BasicBlock::iterator i = vi;
                 for (BasicBlock::iterator j = vi->getParent()->end(); i != j; --i) {
                     if (i->getOpcode() == Instruction::Store && i->getOperand(1) == vi->getOperand(0)) {
                         break;
                     }
                 }
-                builddep((Instruction*)dyn_cast<Instruction>(*i), idep);
+                op0 = dyn_cast<Instruction>(*i);
+                builddep(op0, idep);
                 return;
             case Instruction::Store:
-                idep->insert(vi);
-                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(1)), idep);
+                idep.insert(vi);
+                op1 = dyn_cast<Instruction>(*vi->getOperand(1));
+                builddep(op1, idep);
                 return;
             case Instruction::Alloca:
-                idep->insert(vi);
+                idep.insert(vi);
                 return;
             case Instruction::ICmp:
-                idep->insert(vi);
-                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(0)), idep);
+                idep.insert(vi);
+                op0 = dyn_cast<Instruction>(*vi->getOperand(0));
+                builddep(op0, idep);
                 return;
             default:
                 return;
