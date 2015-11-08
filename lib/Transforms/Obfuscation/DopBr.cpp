@@ -50,13 +50,16 @@ namespace {
 void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
     for (User::op_iterator opi = iuse->op_begin(), ope = iuse->op_end(); opi != ope; ++opi) {
         Instruction *vi = dyn_cast<Instruction>(*opi);
+        Instruction *op0, *op1, *op2;
         if (vi == NULL) return;
         else {
             switch (vi->getOpcode()) {
             case Instruction::Add:
                 idep.insert(vi);
-                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(0)), idep);
-                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(1)), idep);
+                op0 = dyn_cast<Instruction>(*vi->getOperand(0));
+                op1 = dyn_cast<Instruction>(*vi->getOperand(1));
+                builddep(op0, idep);
+                builddep(op1, idep);
                 return;
             case Instruction::Sub:
                 idep->insert(vi);
@@ -92,6 +95,8 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
             case Instruction::ICmp:
                 idep->insert(vi);
                 builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(0)), idep);
+                return;
+            default:
                 return;
             }
         }
