@@ -42,8 +42,8 @@ namespace {
         }
 
         // build dependence
-        void builddep(Instruction *iuse, std::set<Instruction *> *idep) {
-            for (User::op_iterator opi = i->op_begin(), ope = i->op_end(); opi != ope; ++opi) {
+        void builddep(Instruction *iuse, std::set<Instruction*> *idep) {
+            for (User::op_iterator opi = iuse->op_begin(), ope = iuse->op_end(); opi != ope; ++opi) {
                 Instruction *vi = dyn_cast<Instruction>(*opi);
                 if (vi == NULL) return;
                 else {
