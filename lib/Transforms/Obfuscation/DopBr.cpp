@@ -35,7 +35,7 @@ namespace {
                     errs() << "find a branch in BB" << "\n";
                 }
             }
-            builddep(ibr, &dep);
+            builddep(ibr, dep);
             for (std::set<Instruction *>::iterator i = dep.begin(); i != dep.end(); ++i) {
                 errs() << **i << "\n";
             }
@@ -43,19 +43,19 @@ namespace {
 
         // build dependence
     private:
-        void builddep(Instruction *iuse, std::set<Instruction*> *idep);
+        void builddep(Instruction *iuse, std::set<Instruction*> &idep);
     };
 }
 
 
-void DopBr::builddep(Instruction *iuse, std::set<Instruction*> *idep) {
+void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
     for (User::op_iterator opi = iuse->op_begin(), ope = iuse->op_end(); opi != ope; ++opi) {
         Instruction *vi = dyn_cast<Instruction>(*opi);
         if (vi == NULL) return;
         else {
             switch (vi->getOpcode()) {
             case Instruction::Add:
-                idep->insert(vi);
+                idep.insert(vi);
                 builddep(dyn_cast<Instruction>(*vi->getOperand(0)), idep);
                 builddep(dyn_cast<Instruction>(*vi->getOperand(1)), idep);
                 return;
