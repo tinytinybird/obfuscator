@@ -28,11 +28,16 @@ namespace {
         // add dynamic opaque predicates to 
         void addDopBranch(Function &F) {
             BranchInst *ibr;
+            std::set<Instruction *> dep;
             for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
                 ibr = dyn_cast<BranchInst>(bb->getTerminator());
                 if (ibr && ibr->isConditional()) {
                     errs() << "find a branch in BB" << "\n";
                 }
+            }
+            builddep(ibr, &dep);
+            for (std::set<Instruction *>::iterator i = dep.begin(); i != dep.end(); ++i) {
+                errs() << **i << "\n";
             }
         }
 
@@ -63,11 +68,25 @@ namespace {
                         builddep(vi->getOperand(0), idep);
                         return;
                     case Instruction::Load:
-                        BasicBlock::iterator i = vi;
-                        for (BasicBlock::iterator j = vi->getParent()->begin(); i != j; --i) {
-                            if (i->getOpcode() == Instruction::Store && i->getOperand(1) == )
-                        }
                         idep->insert(vi);
+                        BasicBlock::iterator i = vi;
+                        for (BasicBlock::iterator j = vi->getParent()->end(); i != j; --i) {
+                            if (i->getOpcode() == Instruction::Store && i->getOperand(1) == vi->getOperand(0)) {
+                                break;
+                            }
+                        }
+                        builddep(i, idep);
+                        return;
+                    case Instruction::Store:
+                        idep->insert(vi);
+                        builddep(vi->getOperand(1), idep);
+                        return;
+                    case Instruction::Alloca:
+                        idep->insert(vi);
+                        return;
+                    case Instruction::ICmp:
+                        idep->insert(vi);
+                        builddep(vi->getOperand(0), idep);
                         return;
                     }
                 }
