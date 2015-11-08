@@ -39,6 +39,7 @@ namespace {
                 }
             }
             builddep(ibr, dep);
+	    errs() << "dep is built." << '\n';
             for (std::set<Instruction *>::iterator i = dep.begin(); i != dep.end(); ++i) {
                 errs() << **i << "\n";
             }
@@ -51,10 +52,12 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
     for (User::op_iterator opi = iuse->op_begin(), ope = iuse->op_end(); opi != ope; ++opi) {
         Instruction *vi = dyn_cast<Instruction>(*opi);
         Instruction *op0, *op1, *op2;
-        if (vi == NULL) return;
+	errs() << "Enter for loop" << '\n';
+        if (vi == NULL) break;
         else {
             switch (vi->getOpcode()) {
             case Instruction::Add:
+	        errs() << "Add" << '\n';
                 idep.insert(vi);
                 op0 = dyn_cast<Instruction>(vi->getOperand(0));
                 op1 = dyn_cast<Instruction>(vi->getOperand(1));
@@ -62,6 +65,7 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
                 builddep(op1, idep);
                 return;
             case Instruction::Sub:
+	        errs() << "Sub" << '\n';
                 idep.insert(vi);
                 op0 = dyn_cast<Instruction>(vi->getOperand(0));
                 op1 = dyn_cast<Instruction>(vi->getOperand(1));
@@ -69,6 +73,7 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
                 builddep(op1, idep);
                 return;
             case Instruction::Mul:
+	        errs() << "Mul" << '\n';
                 idep.insert(vi);
                 op0 = dyn_cast<Instruction>(vi->getOperand(0));
                 op1 = dyn_cast<Instruction>(vi->getOperand(1));
@@ -76,11 +81,14 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
                 builddep(op1, idep);
                 return;
             case Instruction::Br:
+	        errs() << "Br" << '\n';
                 idep.insert(vi);
                 op0 = dyn_cast<Instruction>(vi->getOperand(0));
                 builddep(op0, idep);
                 return;
             case Instruction::Load:
+	      {
+		errs() << "Load" << '\n';
                 idep.insert(vi);
                 BasicBlock::iterator i = vi;
                 for (BasicBlock::iterator j = vi->getParent()->end(); i != j; --i) {
@@ -91,15 +99,19 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
                 op0 = dyn_cast<Instruction>(i);
                 builddep(op0, idep);
                 return;
+	      }
             case Instruction::Store:
+	        errs() << "Store" << '\n';
                 idep.insert(vi);
                 op1 = dyn_cast<Instruction>(vi->getOperand(1));
                 builddep(op1, idep);
                 return;
             case Instruction::Alloca:
+	        errs() << "Alloca" << '\n';
                 idep.insert(vi);
                 return;
             case Instruction::ICmp:
+	        errs() << "ICmp" << '\n';
                 idep.insert(vi);
                 op0 = dyn_cast<Instruction>(vi->getOperand(0));
                 builddep(op0, idep);
