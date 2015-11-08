@@ -36,6 +36,7 @@
 #include "llvm/Transforms/IPO.h"
 #include "llvm/CryptoUtils.h"
 #include <list>
+#include <set>
 
 using namespace std;
 using namespace llvm;
