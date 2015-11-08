@@ -50,22 +50,22 @@ namespace {
                     switch (vi->getOpcode()) {
                     case Instruction::Add:
                         idep->insert(vi);
-                        builddep(vi->getOperand(0), idep);
-                        builddep(vi->getOperand(1), idep);
+                        builddep(dyn_cast<Instruction>(*vi->getOperand(0)), idep);
+                        builddep(dyn_cast<Instruction>(*vi->getOperand(1)), idep);
                         return;
                     case Instruction::Sub:
                         idep->insert(vi);
-                        builddep(vi->getOperand(0), idep);
-                        builddep(vi->getOperand(1), idep);
+                        builddep(dyn_cast<Instruction>(*vi->getOperand(0)), idep);
+                        builddep(dyn_cast<Instruction>(*vi->getOperand(1)), idep);
                         return;
                     case Instruction::Mul:
                         idep->insert(vi);
-                        builddep(vi->getOperand(0), idep);
-                        builddep(vi->getOperand(1), idep);
+                        builddep(dyn_cast<Instruction>(*vi->getOperand(0)), idep);
+                        builddep(dyn_cast<Instruction>(*vi->getOperand(1)), idep);
                         return;
                     case Instruction::Br:
                         idep->insert(vi);
-                        builddep(vi->getOperand(0), idep);
+                        builddep(dyn_cast<Instruction>(*vi->getOperand(0)), idep);
                         return;
                     case Instruction::Load:
                         idep->insert(vi);
@@ -75,18 +75,18 @@ namespace {
                                 break;
                             }
                         }
-                        builddep(i, idep);
+                        builddep(dyn_cast<Instruction>(*i), idep);
                         return;
                     case Instruction::Store:
                         idep->insert(vi);
-                        builddep(vi->getOperand(1), idep);
+                        builddep(dyn_cast<Instruction>(*vi->getOperand(1)), idep);
                         return;
                     case Instruction::Alloca:
                         idep->insert(vi);
                         return;
                     case Instruction::ICmp:
                         idep->insert(vi);
-                        builddep(vi->getOperand(0), idep);
+                        builddep(dyn_cast<Instruction>(*vi->getOperand(0)), idep);
                         return;
                     }
                 }
