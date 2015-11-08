@@ -25,6 +25,9 @@ namespace {
             return false;
         }
 
+        // build dependence
+        void builddep(Instruction *iuse, std::set<Instruction*> &idep);
+
         // add dynamic opaque predicates to 
         void addDopBranch(Function &F) {
             BranchInst *ibr;
@@ -40,10 +43,6 @@ namespace {
                 errs() << **i << "\n";
             }
         }
-
-        // build dependence
-    private:
-        void builddep(Instruction *iuse, std::set<Instruction*> &idep);
     };
 }
 
@@ -56,22 +55,22 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
             switch (vi->getOpcode()) {
             case Instruction::Add:
                 idep.insert(vi);
-                builddep(dyn_cast<Instruction>(*vi->getOperand(0)), idep);
-                builddep(dyn_cast<Instruction>(*vi->getOperand(1)), idep);
+                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(0)), idep);
+                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(1)), idep);
                 return;
             case Instruction::Sub:
                 idep->insert(vi);
-                builddep(dyn_cast<Instruction>(*vi->getOperand(0)), idep);
-                builddep(dyn_cast<Instruction>(*vi->getOperand(1)), idep);
+                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(0)), idep);
+                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(1)), idep);
                 return;
             case Instruction::Mul:
                 idep->insert(vi);
-                builddep(dyn_cast<Instruction>(*vi->getOperand(0)), idep);
-                builddep(dyn_cast<Instruction>(*vi->getOperand(1)), idep);
+                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(0)), idep);
+                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(1)), idep);
                 return;
             case Instruction::Br:
                 idep->insert(vi);
-                builddep(dyn_cast<Instruction>(*vi->getOperand(0)), idep);
+                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(0)), idep);
                 return;
             case Instruction::Load:
                 idep->insert(vi);
@@ -81,18 +80,18 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
                         break;
                     }
                 }
-                builddep(dyn_cast<Instruction>(*i), idep);
+                builddep((Instruction*)dyn_cast<Instruction>(*i), idep);
                 return;
             case Instruction::Store:
                 idep->insert(vi);
-                builddep(dyn_cast<Instruction>(*vi->getOperand(1)), idep);
+                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(1)), idep);
                 return;
             case Instruction::Alloca:
                 idep->insert(vi);
                 return;
             case Instruction::ICmp:
                 idep->insert(vi);
-                builddep(dyn_cast<Instruction>(*vi->getOperand(0)), idep);
+                builddep((Instruction*)dyn_cast<Instruction>(*vi->getOperand(0)), idep);
                 return;
             }
         }
