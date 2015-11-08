@@ -49,10 +49,11 @@ namespace {
 
 
 void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
+    errs() << "Enter builddep" << '\n';
     for (User::op_iterator opi = iuse->op_begin(), ope = iuse->op_end(); opi != ope; ++opi) {
+        errs() << "Enter for loop" << '\n';
         Instruction *vi = dyn_cast<Instruction>(*opi);
         Instruction *op0, *op1, *op2;
-	errs() << "Enter for loop" << '\n';
         if (vi == NULL) break;
         else {
             switch (vi->getOpcode()) {
