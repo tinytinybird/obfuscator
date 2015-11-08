@@ -36,6 +36,7 @@ namespace {
                 ibr = dyn_cast<BranchInst>(bb->getTerminator());
                 if (ibr && ibr->isConditional()) {
                     errs() << "find a branch in BB" << "\n";
+		    break;
                 }
             }
             builddep(ibr, dep);
@@ -54,8 +55,11 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
     // errs() << "Enter for loop" << '\n';
     // Instruction *vi = dyn_cast<Instruction>(*opi);
     Instruction *vi = iuse;
-    Instruction *op0, *op1, *op2;
-    if (vi == NULL) break;
+    Instruction *op0, *op1;
+    if (vi == NULL) {
+        errs() << "No instruction" << '\n';
+        return;
+    }
     else {
         switch (vi->getOpcode()) {
         case Instruction::Add:
@@ -105,8 +109,8 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
         case Instruction::Store:
             errs() << "Store" << '\n';
             idep.insert(vi);
-            op1 = dyn_cast<Instruction>(vi->getOperand(1));
-            builddep(op1, idep);
+            op0 = dyn_cast<Instruction>(vi->getOperand(0));
+            builddep(op0, idep);
             return;
         case Instruction::Alloca:
             errs() << "Alloca" << '\n';
@@ -119,6 +123,7 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
             builddep(op0, idep);
             return;
         default:
+	    errs() << "Not match" << '\n';
             return;
         }
     }
