@@ -31,7 +31,7 @@ namespace {
         // insert DOP into obfBB
         void insertDOP(BasicBlock *obfBB, int offset,
                               AllocaInst *dop1, AllocaInst *dop2,
-                              BasicBlock *head, BasicBlock *tail,
+                              BasicBlock **head, BasicBlock **tail,
                               std::map<Instruction*, Instruction*> *fixssa,
                               Function &F);
 
@@ -113,7 +113,7 @@ namespace {
 
             std::map<Instruction*, Instruction*> fixssa;
             BasicBlock *newhead, *newtail;
-            insertDOP(obfBB, 2, dop1, dop2, newhead, newtail, &fixssa, F);
+            insertDOP(obfBB, 2, dop1, dop2, &newhead, &newtail, &fixssa, F);
 	    errs() << "DOP inserted." << '\n';
             preBB->getTerminator()->eraseFromParent();
             BranchInst::Create(newhead, preBB);
@@ -125,7 +125,7 @@ namespace {
 // Insert dynamic opaque predicate into obfBB
 void DopBr::insertDOP(BasicBlock *obfBB, int offset,
                       AllocaInst *dop1, AllocaInst *dop2,
-                      BasicBlock *head, BasicBlock *tail,
+                      BasicBlock **head, BasicBlock **tail,
                       std::map<Instruction*, Instruction*> *fixssa,
                       Function &F)
 {
@@ -133,7 +133,7 @@ void DopBr::insertDOP(BasicBlock *obfBB, int offset,
     BasicBlock* dop1BB = BasicBlock::Create(F.getContext(), "dop1BB", &F, obfBB);
     LoadInst* dop1p = new LoadInst(dop1, "", false, 4, dop1BB);
     LoadInst* dop1deref = new LoadInst(dop1p, "", false, 4, dop1BB);
-    head = dop1BB;
+    *head = dop1BB;
 
     // create alter BB from cloneing the obfBB
     const Twine & name = "alter";
