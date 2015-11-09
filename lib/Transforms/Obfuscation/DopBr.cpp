@@ -29,7 +29,7 @@ namespace {
         void builddep(Instruction *iuse, std::set<Instruction*> &idep);
 
         // insert DOP into obfBB
-        void DopBr::insertDOP(BasicBlock *obfBB, int offset,
+        void insertDOP(BasicBlock *obfBB, int offset,
                               AllocaInst *dop1, AllocaInst *dop2,
                               BasicBlock *head, BasicBlock *tail,
                               std::map<Instruction*, Instruction*> *fixssa,
@@ -114,6 +114,7 @@ namespace {
             std::map<Instruction*, Instruction*> fixssa;
             BasicBlock *newhead, *newtail;
             insertDOP(obfBB, 2, dop1, dop2, newhead, newtail, &fixssa, F);
+	    errs() << "DOP inserted." << '\n';
             preBB->getTerminator()->eraseFromParent();
             BranchInst::Create(newhead, preBB);
 
@@ -129,9 +130,9 @@ void DopBr::insertDOP(BasicBlock *obfBB, int offset,
                       Function &F)
 {
     // create the first dop basic block
-    BasicBlock* dop1BB = BasicBlock::Create(F.getContext(), "dop1BB", &F, originBB);
-    LoadInst* dop1p = new LoadInst(dop1, "", false, 4, dop2BB);
-    LoadInst* dop1deref = new LoadInst(dop1p, "", false, 4, dop2BB);
+    BasicBlock* dop1BB = BasicBlock::Create(F.getContext(), "dop1BB", &F, obfBB);
+    LoadInst* dop1p = new LoadInst(dop1, "", false, 4, dop1BB);
+    LoadInst* dop1deref = new LoadInst(dop1p, "", false, 4, dop1BB);
     head = dop1BB;
 
     // create alter BB from cloneing the obfBB
@@ -170,7 +171,7 @@ void DopBr::insertDOP(BasicBlock *obfBB, int offset,
     Twine *var3 = new Twine("dopbranch1");
     Value *rvalue = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
     // preBB->getTerminator()->eraseFromParent();
-    ICmpInst * dopbranch1 = new ICmpInst(dop1BB, CmpInst::ICMP_SGT , dop1deref, rvalue, *var3);
+    ICmpInst * dopbranch1 = new ICmpInst(*dop1BB, CmpInst::ICMP_SGT , dop1deref, rvalue, *var3);
     BranchInst::Create(obfBB, alterBB, dopbranch1, dop1BB);
 
 }
