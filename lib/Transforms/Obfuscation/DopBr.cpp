@@ -104,6 +104,47 @@ namespace {
             LoadInst* dop1p = new LoadInst(dop1, "", false, 4, ii);
             LoadInst* dop1deref = new LoadInst(dop1p, "", false, 4, ii);
 
+            // create alter BB from cloneing the obfBB
+            const Twine & name = "alter";
+            ValueToValueMapTy VMap;
+            BasicBlock* alterBB = llvm::CloneBasicBlock(obfBB, VMap, name, &F);
+
+            for (BasicBlock::iterator i = alterBB->begin(), e = alterBB->end() ; i != e; ++i) {
+                // Loop over the operands of the instruction
+                for(User::op_iterator opi = i->op_begin (), ope = i->op_end(); opi != ope; ++opi) {
+                    // get the value for the operand
+                    Value *v = MapValue(*opi, VMap,  RF_None, 0);
+                    if (v != 0){
+                        *opi = v;
+                    }
+                }
+            }
+
+            // Map instructions in obfBB and alterBB
+	    std::map<Instruction*, Instruction*> fixssa;
+            for (BasicBlock::iterator i = obfBB->begin(), j = alterBB->begin(),
+                                      e = obfBB->end(), f = alterBB->end(); i != e && j != f; ++i, ++j) {
+	      // errs() << "install fix ssa:" << "\n";
+	      fixssa[i] = j;
+            }
+            // Fix use values in alterBB
+            for (BasicBlock::iterator i = alterBB->begin(), e = alterBB->end() ; i != e; ++i) {
+                for (User::op_iterator opi = i->op_begin(), ope = i->op_end(); opi != ope; ++opi) {
+                    Instruction *vi = dyn_cast<Instruction>(*opi);
+                    if (fixssa.find(vi) != fixssa.end()) {
+                        *opi = (Value*)fixssa[vi];
+                    }
+                }
+            }
+
+            // create the first dop at the end of preBB
+            Twine * var3 = new Twine("dopbranch1");
+            Value * rvalue = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
+            preBB->getTerminator()->eraseFromParent();
+            ICmpInst * dopbranch1 = new ICmpInst(*preBB, CmpInst::ICMP_SGT , dop1deref, rvalue, *var3);
+            BranchInst::Create(obfBB, alterBB, dopbranch1, preBB);
+
+
         }
     };
 }
