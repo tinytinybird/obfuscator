@@ -51,7 +51,7 @@ namespace {
             preBB = ibr->getParent();
             BasicBlock::iterator offsetinst = ibr;
             for (BasicBlock::iterator j = preBB->begin(); offsetinst != j; --offsetinst) {
-                if (dep.find(offsetinst) == NULL) {
+	      if (dep.find(offsetinst) == dep.end()) {
                     break;
                 }
             }
