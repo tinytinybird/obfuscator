@@ -28,6 +28,13 @@ namespace {
         // build dependence
         void builddep(Instruction *iuse, std::set<Instruction*> &idep);
 
+        // insert DOP into obfBB
+        void DopBr::insertDOP(BasicBlock *obfBB, int offset,
+                              AllocaInst *dop1, AllocaInst *dop2,
+                              BasicBlock *head, BasicBlock *tail,
+                              std::map<Instruction*, Instruction*> *fixssa,
+                              Function &F);
+
         // add dynamic opaque predicates to 
         void addDopBranch(Function &F) {
             BranchInst *ibr;
@@ -101,56 +108,76 @@ namespace {
             StoreInst* dop2br2st = new StoreInst(insertAlloca->getOperand(1), dop2br2, false, ii);
 
             // load dop1's value
-            LoadInst* dop1p = new LoadInst(dop1, "", false, 4, ii);
-            LoadInst* dop1deref = new LoadInst(dop1p, "", false, 4, ii);
+            // LoadInst* dop1p = new LoadInst(dop1, "", false, 4, ii);
+            // LoadInst* dop1deref = new LoadInst(dop1p, "", false, 4, ii);
 
-            // create alter BB from cloneing the obfBB
-            const Twine & name = "alter";
-            ValueToValueMapTy VMap;
-            BasicBlock* alterBB = llvm::CloneBasicBlock(obfBB, VMap, name, &F);
-
-            for (BasicBlock::iterator i = alterBB->begin(), e = alterBB->end() ; i != e; ++i) {
-                // Loop over the operands of the instruction
-                for(User::op_iterator opi = i->op_begin (), ope = i->op_end(); opi != ope; ++opi) {
-                    // get the value for the operand
-                    Value *v = MapValue(*opi, VMap,  RF_None, 0);
-                    if (v != 0){
-                        *opi = v;
-                    }
-                }
-            }
-
-            // Map instructions in obfBB and alterBB
-	    std::map<Instruction*, Instruction*> fixssa;
-            for (BasicBlock::iterator i = obfBB->begin(), j = alterBB->begin(),
-                                      e = obfBB->end(), f = alterBB->end(); i != e && j != f; ++i, ++j) {
-	      // errs() << "install fix ssa:" << "\n";
-	      fixssa[i] = j;
-            }
-            // Fix use values in alterBB
-            for (BasicBlock::iterator i = alterBB->begin(), e = alterBB->end() ; i != e; ++i) {
-                for (User::op_iterator opi = i->op_begin(), ope = i->op_end(); opi != ope; ++opi) {
-                    Instruction *vi = dyn_cast<Instruction>(*opi);
-                    if (fixssa.find(vi) != fixssa.end()) {
-                        *opi = (Value*)fixssa[vi];
-                    }
-                }
-            }
-
-            // create the first dop at the end of preBB
-            Twine * var3 = new Twine("dopbranch1");
-            Value * rvalue = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
+            std::map<Instruction*, Instruction*> fixssa;
+            BasicBlock *newhead, *newtail;
+            insertDOP(obfBB, 2, dop1, dop2, newhead, newtail, &fixssa, F);
             preBB->getTerminator()->eraseFromParent();
-            ICmpInst * dopbranch1 = new ICmpInst(*preBB, CmpInst::ICMP_SGT , dop1deref, rvalue, *var3);
-            BranchInst::Create(obfBB, alterBB, dopbranch1, preBB);
-
+            BranchInst::Create(newhead, preBB);
 
         }
     };
 }
 
+// Insert dynamic opaque predicate into obfBB
+void DopBr::insertDOP(BasicBlock *obfBB, int offset,
+                      AllocaInst *dop1, AllocaInst *dop2,
+                      BasicBlock *head, BasicBlock *tail,
+                      std::map<Instruction*, Instruction*> *fixssa,
+                      Function &F)
+{
+    // create the first dop basic block
+    BasicBlock* dop1BB = BasicBlock::Create(F.getContext(), "dop1BB", &F, originBB);
+    LoadInst* dop1p = new LoadInst(dop1, "", false, 4, dop2BB);
+    LoadInst* dop1deref = new LoadInst(dop1p, "", false, 4, dop2BB);
+    head = dop1BB;
+
+    // create alter BB from cloneing the obfBB
+    const Twine & name = "alter";
+    ValueToValueMapTy VMap;
+    BasicBlock* alterBB = llvm::CloneBasicBlock(obfBB, VMap, name, &F);
+
+    for (BasicBlock::iterator i = alterBB->begin(), e = alterBB->end() ; i != e; ++i) {
+        // Loop over the operands of the instruction
+        for(User::op_iterator opi = i->op_begin (), ope = i->op_end(); opi != ope; ++opi) {
+            // get the value for the operand
+            Value *v = MapValue(*opi, VMap,  RF_None, 0);
+            if (v != 0){
+                *opi = v;
+            }
+        }
+    }
+
+    // Map instructions in obfBB and alterBB
+    for (BasicBlock::iterator i = obfBB->begin(), j = alterBB->begin(),
+             e = obfBB->end(), f = alterBB->end(); i != e && j != f; ++i, ++j) {
+        // errs() << "install fix ssa:" << "\n";
+        (*fixssa)[i] = j;
+    }
+    // Fix use values in alterBB
+    for (BasicBlock::iterator i = alterBB->begin(), e = alterBB->end() ; i != e; ++i) {
+        for (User::op_iterator opi = i->op_begin(), ope = i->op_end(); opi != ope; ++opi) {
+            Instruction *vi = dyn_cast<Instruction>(*opi);
+            if (fixssa->find(vi) != fixssa->end()) {
+                *opi = (Value*)(*fixssa)[vi];
+            }
+        }
+    }
+
+    // create the first dop at the end of dop1BB
+    Twine *var3 = new Twine("dopbranch1");
+    Value *rvalue = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
+    // preBB->getTerminator()->eraseFromParent();
+    ICmpInst * dopbranch1 = new ICmpInst(dop1BB, CmpInst::ICMP_SGT , dop1deref, rvalue, *var3);
+    BranchInst::Create(obfBB, alterBB, dopbranch1, dop1BB);
+
+}
+
 // build a set idep, which contains all instructions that iuse depends on
-void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep) {
+void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep)
+{
     errs() << "Enter builddep" << '\n';
     // for (User::op_iterator opi = iuse->op_begin(), ope = iuse->op_end(); opi != ope; ++opi) {
     // errs() << "Enter for loop" << '\n';
