@@ -71,9 +71,9 @@ namespace {
             // as the obfBB
             BasicBlock::iterator preBBend = std::next(insertAlloca);
             Twine *var1 = new Twine("obfBB");
-            obfBB = bb->splitBasicBlock(preBBend, *var1);
+            obfBB = preBB->splitBasicBlock(preBBend, *var1);
             Twine *var2 = new Twine("postBB");
-            postBB = obfBB->splitBasicBlock(obfBBend, *var2);
+            postBB = obfBB->splitBasicBlock(ibr, *var2);
 
 
             // insert allca for the dop pointers
