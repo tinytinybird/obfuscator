@@ -31,7 +31,7 @@ namespace {
         // add dynamic opaque predicates to 
         void addDopBranch(Function &F) {
             BranchInst *ibr;
-            BasicBlock *preBB;
+            BasicBlock *preBB, *postBB, *obfBB;
             std::set<Instruction *> dep;
             for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
                 ibr = dyn_cast<BranchInst>(bb->getTerminator());
@@ -63,8 +63,18 @@ namespace {
                 unsigned opcode = i->getOpcode();
                 if (opcode == Instruction::Store) {
                     insertAlloca = i;
+                    break;
                 }
             }
+
+            // split the snippet between the first store and the branch
+            // as the obfBB
+            BasicBlock::iterator preBBend = std::next(insertAlloca);
+            Twine *var1 = new Twine("obfBB");
+            obfBB = bb->splitBasicBlock(preBBend, *var1);
+            Twine *var2 = new Twine("postBB");
+            postBB = obfBB->splitBasicBlock(obfBBend, *var2);
+
 
             // insert allca for the dop pointers
             BasicBlock::iterator ii = std::next(insertAlloca);
@@ -89,6 +99,10 @@ namespace {
             StoreInst* dop2br1st = new StoreInst(insertAlloca->getOperand(1), dop2br1, false, ii);
             StoreInst* dop1br2st = new StoreInst(insertAlloca->getOperand(1), dop1br2, false, ii);
             StoreInst* dop2br2st = new StoreInst(insertAlloca->getOperand(1), dop2br2, false, ii);
+
+            // load dop1's value
+            LoadInst* dop1p = new LoadInst(dop1, "", false, 4, ii);
+            LoadInst* dop1deref = new LoadInst(dop1p, "", false, 4, ii);
 
         }
     };
