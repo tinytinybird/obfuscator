@@ -196,7 +196,7 @@ void DopBr::insertDOP(BasicBlock *obfBB, int offset,
     LoadInst *dop2deref = new LoadInst(dop2p, "", false, 4, dop2BB);
     Twine *var6 = new Twine("dopbranch2");
     Value *rvalue2 = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
-    ICmpInst *dopbranch2 = new ICmpInst(*dop2BB, CmpInst::ICMP_SGT , dop2deref, rvalue, *var3);
+    ICmpInst *dopbranch2 = new ICmpInst(*dop2BB, CmpInst::ICMP_SGT , dop2deref, rvalue2, *var6);
     BranchInst::Create(obfBB2, alterBB2, dopbranch2, dop2BB);
 
     // connect obfBB and alterBB to the second dop
