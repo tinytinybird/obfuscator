@@ -29,7 +29,7 @@ namespace {
         void builddep(Instruction *iuse, std::set<Instruction*> &idep);
 
         // insert DOP into obfBB
-        void insertDOP(BasicBlock *obfBB, int offset,
+        void insertDOP(BasicBlock *obfBB, BasicBlock *postBB, int offset,
                               AllocaInst *dop1, AllocaInst *dop2,
                               BasicBlock **head, BasicBlock **tail,
                               std::map<Instruction*, Instruction*> *fixssa,
@@ -113,7 +113,7 @@ namespace {
 
             std::map<Instruction*, Instruction*> fixssa;
             BasicBlock *newhead, *newtail;
-            insertDOP(obfBB, 2, dop1, dop2, &newhead, &newtail, &fixssa, F);
+            insertDOP(obfBB, postBB, 2, dop1, dop2, &newhead, &newtail, &fixssa, F);
 	    errs() << "DOP inserted." << '\n';
 
             // connect preBB to the new head
@@ -125,7 +125,7 @@ namespace {
 }
 
 // Insert dynamic opaque predicate into obfBB
-void DopBr::insertDOP(BasicBlock *obfBB, int offset,
+void DopBr::insertDOP(BasicBlock *obfBB, BasicBlock *postBB, int offset,
                       AllocaInst *dop1, AllocaInst *dop2,
                       BasicBlock **head, BasicBlock **tail,
                       std::map<Instruction*, Instruction*> *fixssa,
@@ -205,6 +205,30 @@ void DopBr::insertDOP(BasicBlock *obfBB, int offset,
     alterBB->getTerminator()->eraseFromParent();
     BranchInst::Create(dop2BB, alterBB);
 
+    // insert phi node and update uses in postBB
+    BasicBlock::iterator ii = postBB->begin();
+    std::map<Instruction*, PHINode*> insertedPHI;
+    for (BasicBlock::iterator i = postBB->begin(), e = postBB->end() ; i != e; ++i) {
+        for(User::op_iterator opi = i->op_begin(), ope = i->op_end(); opi != ope; ++opi) {
+            Instruction *p;
+            Instruction *vi = dyn_cast<Instruction>(*opi);
+            PHINode *q;
+            if (fixssa->find(vi) != fixssa->end()) {
+                PHINode *fixnode;
+                p = (*fixssa)[vi];
+                if (insertedPHI.find(vi) == insertedPHI.end()) {
+                    q = insertedPHI[vi];
+                    fixnode = PHINode::Create(vi->getType(), 2, "", ii);
+                    fixnode->addIncoming(vi, vi->getParent());
+                    fixnode->addIncoming(p, p->getParent());
+                    insertedPHI[vi] = fixnode;
+                } else {
+                    fixnode = q;
+                }
+                *opi = (Value*)fixnode;
+            }
+        }
+    }
 }
 
 // build a set idep, which contains all instructions that iuse depends on
