@@ -129,7 +129,7 @@ namespace {
             std::map<Instruction*, Instruction*> fixssabr1;
             insertDOP(obfBBbr1, br1succ, 2, dop1br1, dop2br1, &newheadbr1, &newtailbr1, &fixssabr1, F);
             br1BB->getTerminator()->eraseFromParent();
-            BranchInst::Create(newhead, br1BB);
+            BranchInst::Create(newheadbr1, br1BB);
         }
     };
 }
