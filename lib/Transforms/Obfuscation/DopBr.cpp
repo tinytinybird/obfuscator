@@ -56,12 +56,13 @@ namespace {
 
             // find the last inst before ibr but not affect it
             preBB = ibr->getParent();
-            BasicBlock::iterator offsetinst = ibr;
-            for (BasicBlock::iterator j = preBB->begin(); offsetinst != j; --offsetinst) {
-	      if (dep.find(offsetinst) == dep.end()) {
+            BasicBlock::iterator keyinst = ibr;
+            for (BasicBlock::iterator j = preBB->begin(); keyinst != j; --keyinst) {
+	      if (dep.find(keyinst) == dep.end()) {
                     break;
                 }
             }
+            errs() << "keyinst is: " << *keyinst << '\n';
 
             // find the local variable for dop
             // the first store instruction (Can be improved!)
