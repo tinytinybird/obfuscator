@@ -133,9 +133,13 @@ namespace {
 
             // insert keyinst into the true branch of dop1br1
             keyinst->eraseFromParent();
-            BasicBlock *iBB = newheadbr1->getSuccessor(0);
-            ii = dop1br1BB->begin();
+	    errs() << "remove keyinst" << '\n';
+            BasicBlock *iBB = newheadbr1->getTerminator()->getSuccessor(0);
+	    errs() << "get new head" << '\n';
+            ii = iBB->begin();
+	    errs() << "set ii" << '\n';
             iBB->getInstList().insert(ii, keyinst);
+	    errs() << "insert key inst" << '\n';
         }
     };
 }
