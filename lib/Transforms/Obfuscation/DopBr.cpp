@@ -122,12 +122,14 @@ namespace {
             BranchInst::Create(newhead, preBB);
 
             // insert dop1br1 and dop2br1 to the true branch
-            BasicBlock *branch1BB = ibr->getSuccessor(0);
+            BasicBlock *br1BB = ibr->getSuccessor(0);
+            BasicBlock *obfBBbr1 = br1BB->splitBasicBlock(br1BB->begin(), "");
+            BasicBlock *br1succ = br1BB->getTerminator()->getSuccessor(0);
             BasicBlock *newheadbr1, *newtailbr1;
             std::map<Instruction*, Instruction*> fixssabr1;
-	    errs() << *branch1BB->begin() << '\n';
-            insertDOP(branch1BB, branch1BB->getTerminator()->getSuccessor(0), 2, dop1br1, dop2br1, &newheadbr1, &newtailbr1, &fixssabr1, F);
-
+            insertDOP(obfBBbr1, br1succ, 2, dop1br1, dop2br1, &newheadbr1, &newtailbr1, &fixssabr1, F);
+            br1BB->getTerminator()->eraseFromParent();
+            BranchInst::Create(newhead, br1BB);
         }
     };
 }
