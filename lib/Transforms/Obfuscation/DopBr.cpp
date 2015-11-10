@@ -134,14 +134,24 @@ namespace {
 
             // insert keyinst into the true branch of dop1br1
             kinst->eraseFromParent();
-	    errs() << "remove keyinst" << '\n';
+	    // errs() << "remove keyinst" << '\n';
             BasicBlock *iBB = newheadbr1->getTerminator()->getSuccessor(0);
-	    errs() << "get new head" << '\n';
+	    // errs() << "get new head" << '\n';
             ii = iBB->begin();
-	    errs() << "set ii" << '\n';
+	    // errs() << "set ii" << '\n';
             // Instruction *kinstclone = kinst->clone();
             // iBB->getInstList().insert(ii, kinstclone);
-	    errs() << "insert key inst" << '\n';
+	    // errs() << "insert key inst" << '\n';
+
+            // insert dop1br2 and dop2br2 to the false branch
+            BasicBlock *br2BB = ibr->getSuccessor(1);
+            BasicBlock *obfBBbr2 = br1BB->splitBasicBlock(br2BB->begin(), "");
+            BasicBlock *br2succ = br2BB->getTerminator()->getSuccessor(0);
+            BasicBlock *newheadbr2, *newtailbr2;
+            std::map<Instruction*, Instruction*> fixssabr2;
+            insertDOP(obfBBbr2, br2succ, 2, dop1br2, dop2br2, &newheadbr2, &newtailbr2, &fixssabr2, F);
+            br2BB->getTerminator()->eraseFromParent();
+            BranchInst::Create(newheadbr2, br2BB);
         }
     };
 }
