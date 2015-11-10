@@ -62,7 +62,8 @@ namespace {
                     break;
                 }
             }
-            errs() << "keyinst is: " << *keyinst << '\n';
+            Instruction *kinst = dyn_cast<Instruction>(keyinst);
+            errs() << "keyinst is: " << *kinst << '\n';
 
             // find the local variable for dop
             // the first store instruction (Can be improved!)
@@ -132,10 +133,10 @@ namespace {
             BranchInst::Create(newheadbr1, br1BB);
 
             // insert keyinst into the true branch of dop1br1
-            keyinst->eraseFromParent();
+            kinst->eraseFromParent();
             BasicBlock *iBB = newheadbr1->getSuccessor(0);
             ii = dop1br1BB->begin();
-            iBB->getInstList().insert(ii, keyinst);
+            iBB->getInstList().insert(ii, kinst);
         }
     };
 }
