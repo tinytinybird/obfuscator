@@ -139,8 +139,8 @@ namespace {
 	    errs() << "get new head" << '\n';
             ii = iBB->begin();
 	    errs() << "set ii" << '\n';
-            Instruction *kinstclone = kinst->clone();
-            iBB->getInstList().insert(ii, kinstclone);
+            // Instruction *kinstclone = kinst->clone();
+            // iBB->getInstList().insert(ii, kinstclone);
 	    errs() << "insert key inst" << '\n';
         }
     };
