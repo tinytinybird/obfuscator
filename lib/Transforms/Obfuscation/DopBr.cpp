@@ -130,6 +130,12 @@ namespace {
             insertDOP(obfBBbr1, br1succ, 2, dop1br1, dop2br1, &newheadbr1, &newtailbr1, &fixssabr1, F);
             br1BB->getTerminator()->eraseFromParent();
             BranchInst::Create(newhead, br1BB);
+
+            // insert keyinst into the true branch of dop1br1
+            keyinst->eraseFromParent();
+            BasicBlock *iBB = newheadbr1->getSuccessor(0);
+            ii = dop1br1BB->begin();
+            iBB->getInstList().insert(ii, keyinst);
         }
     };
 }
