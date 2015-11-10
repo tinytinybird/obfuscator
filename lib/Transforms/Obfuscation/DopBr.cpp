@@ -145,7 +145,7 @@ namespace {
 
             // insert dop1br2 and dop2br2 to the false branch
             BasicBlock *br2BB = ibr->getSuccessor(1);
-            BasicBlock *obfBBbr2 = br1BB->splitBasicBlock(br2BB->begin(), "");
+            BasicBlock *obfBBbr2 = br2BB->splitBasicBlock(br2BB->begin(), "");
             BasicBlock *br2succ = br2BB->getTerminator()->getSuccessor(0);
             BasicBlock *newheadbr2, *newtailbr2;
             std::map<Instruction*, Instruction*> fixssabr2;
