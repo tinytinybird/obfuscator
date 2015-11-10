@@ -125,8 +125,8 @@ namespace {
             BasicBlock *branch1BB = ibr->getSuccessor(0);
             BasicBlock *newheadbr1, *newtailbr1;
             std::map<Instruction*, Instruction*> fixssabr1;
-	    errs() << branch1BB->begin() << '\n';
-            // insertDOP(branch1BB, postBB, 2, dop1br1, dop2br1, &newheadbr1, &newtailbr1, &fixssabr1, F);
+	    errs() << *branch1BB->begin() << '\n';
+            insertDOP(branch1BB, branch1BB->getTerminator()->getSuccessor(0), 2, dop1br1, dop2br1, &newheadbr1, &newtailbr1, &fixssabr1, F);
 
         }
     };
