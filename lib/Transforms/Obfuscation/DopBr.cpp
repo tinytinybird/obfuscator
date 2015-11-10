@@ -121,6 +121,13 @@ namespace {
             preBB->getTerminator()->eraseFromParent();
             BranchInst::Create(newhead, preBB);
 
+            // insert dop1br1 and dop2br1 to the true branch
+            BasicBlock *branch1BB = ibr->getSuccessor(0);
+            BasicBlock *newheadbr1, *newtailbr1;
+            std::map<Instruction*, Instruction*> fixssabr1;
+	    errs() << branch1BB->begin() << '\n';
+            // insertDOP(branch1BB, postBB, 2, dop1br1, dop2br1, &newheadbr1, &newtailbr1, &fixssabr1, F);
+
         }
     };
 }
@@ -235,10 +242,8 @@ void DopBr::insertDOP(BasicBlock *obfBB, BasicBlock *postBB, int offset,
 // build a set idep, which contains all instructions that iuse depends on
 void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep)
 {
-    errs() << "Enter builddep" << '\n';
-    // for (User::op_iterator opi = iuse->op_begin(), ope = iuse->op_end(); opi != ope; ++opi) {
-    // errs() << "Enter for loop" << '\n';
-    // Instruction *vi = dyn_cast<Instruction>(*opi);
+    // errs() << "Enter builddep" << '\n';
+
     Instruction *vi = iuse;
     Instruction *op0, *op1;
     if (vi == NULL) {
@@ -308,11 +313,10 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep)
             builddep(op0, idep);
             return;
         default:
-	    errs() << "Not match" << '\n';
+	    errs() << "Unknown" << '\n';
             return;
         }
     }
-    // }
 }
 
 char DopBr::ID = 0;
