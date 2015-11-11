@@ -98,6 +98,8 @@ static cl::opt<bool> DopSeq("dopseq", cl::init(false),
                                       cl::desc("Enable dynamic opaque predicate for a sequence code"));
 static cl::opt<bool> DopBr("dopbr", cl::init(false),
                                       cl::desc("Enable dynamic opaque predicate for branches"));
+static cl::opt<bool> DopBr("doploop", cl::init(false),
+                                      cl::desc("Enable dynamic opaque predicate for loops"));
 
 static cl::opt<bool> Substitution("sub", cl::init(false),
                                   cl::desc("Enable instruction substitutions"));
