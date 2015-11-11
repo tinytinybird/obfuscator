@@ -27,7 +27,7 @@ namespace {
         void addDopLoop(Function &F) {
             errs() << "Set up files for DopLoop" << "\n";
         }
-    }
+    };
 }
 
 char DopLoop::ID = 0;
