@@ -35,6 +35,7 @@
 #include "llvm/Transforms/Obfuscation/Substitution.h"
 #include "llvm/Transforms/Obfuscation/DopSeq.h"
 #include "llvm/Transforms/Obfuscation/DopBr.h"
+#include "llvm/Transforms/Obfuscation/DopLoop.h"
 #include "llvm/CryptoUtils.h"
 
 using namespace llvm;
@@ -199,6 +200,7 @@ void PassManagerBuilder::populateModulePassManager(PassManagerBase &MPM) {
   MPM.add(createFlattening(Flattening));
   MPM.add(createDopSeq(DopSeq));
   MPM.add(createDopBr(DopBr));
+  MPM.add(createDopBr(DopLoop));
     
   // If all optimizations are disabled, just run the always-inline pass and,
   // if enabled, the function merging pass.

@@ -7,6 +7,7 @@ add_llvm_library(LLVMObfuscation
   Flattening.cpp
   DopSeq.cpp
   DopBr.cpp
+  DopLoop.cpp
   )
 
 add_dependencies(LLVMObfuscation intrinsics_gen)
