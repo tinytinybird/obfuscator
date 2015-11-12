@@ -67,6 +67,21 @@ namespace {
             AllocaInst* dop1br2 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop1br2");
             AllocaInst* dop2br2 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop2br2");
 
+            preBB->getInstList().insert(ii, dop1);
+            preBB->getInstList().insert(ii, dop2);
+            preBB->getInstList().insert(ii, dop1br1);
+            preBB->getInstList().insert(ii, dop2br1);
+            preBB->getInstList().insert(ii, dop1br2);
+            preBB->getInstList().insert(ii, dop2br2);
+
+            // store the variable's address to the dop pointers
+            StoreInst* dop1st = new StoreInst(insertAlloca->getOperand(1), dop1, false, ii);
+            StoreInst* dop2st = new StoreInst(insertAlloca->getOperand(1), dop2, false, ii);
+            StoreInst* dop1br1st = new StoreInst(insertAlloca->getOperand(1), dop1br1, false, ii);
+            StoreInst* dop2br1st = new StoreInst(insertAlloca->getOperand(1), dop2br1, false, ii);
+            StoreInst* dop1br2st = new StoreInst(insertAlloca->getOperand(1), dop1br2, false, ii);
+            StoreInst* dop2br2st = new StoreInst(insertAlloca->getOperand(1), dop2br2, false, ii);
+
         }
 
         bool isloop(BasicBlock *bb);
