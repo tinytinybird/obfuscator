@@ -25,23 +25,47 @@ namespace {
             return false;
         }
         void addDopLoop(Function &F) {
-
+            BasicBlock *loopBB, *preBB;
             for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
                 if (isloop(bb)) {
+                    loopBB = bb;
                     errs() << "find a loop in BB" << "\n";
                 } else {
                     errs() << "not a loop" << "\n";
                 }
             }
 
+            // search for the BB before the loopBB
+            for (Function::iterator bb = F.begin(), e = F.end(); bb != e; ++bb) {
+                Instruction *bbend = bb->getTerminator();
+                BranchInst *br = dyn_cast<BranchInst>(bbend);
+
+                if (br && br->isUnconditonal() && br->getSuccessor(0) == loopBB) {
+                    preBB = bb;
+                    break;
+                }
+                
+            }
+
+            // find the local variable for dop
+            // the first store instruction (Can be improved!)
+            BasicBlock::iterator insertAlloca;
+            for (BasicBlock::iterator i = preBB->begin(), e = preBB->end(); i != e; ++i) {
+                unsigned opcode = i->getOpcode();
+                if (opcode == Instruction::Store) {
+                    insertAlloca = i;
+                    break;
+                }
+            }
+
             // insert allca for the dop pointers
-            // BasicBlock::iterator ii = std::next(insertAlloca);
-            // AllocaInst* dop1 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop1");
-            // AllocaInst* dop2 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop2");
-            // AllocaInst* dop1br1 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop1br1");
-            // AllocaInst* dop2br1 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop2br1");
-            // AllocaInst* dop1br2 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop1br2");
-            // AllocaInst* dop2br2 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop2br2");
+            BasicBlock::iterator ii = std::next(insertAlloca);
+            AllocaInst* dop1 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop1");
+            AllocaInst* dop2 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop2");
+            AllocaInst* dop1br1 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop1br1");
+            AllocaInst* dop2br1 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop2br1");
+            AllocaInst* dop1br2 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop1br2");
+            AllocaInst* dop2br2 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop2br2");
 
         }
 
@@ -49,7 +73,7 @@ namespace {
     };
 }
 
-// test wether a basic block is a loop
+// check wether a basic block is a loop body
 bool DopLoop::isloop(BasicBlock *bb)
 {
     Instruction *bbend = bb->getTerminator();
