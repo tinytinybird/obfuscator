@@ -133,11 +133,11 @@ namespace {
             BranchInst::Create(newheadbr1, br1BB);
 
             // insert keyinst into the true branch of dop1br1
-            kinst->eraseFromParent();
+            // kinst->eraseFromParent();
 	    // errs() << "remove keyinst" << '\n';
-            BasicBlock *iBB = newheadbr1->getTerminator()->getSuccessor(0);
+            // BasicBlock *iBB = newheadbr1->getTerminator()->getSuccessor(0);
 	    // errs() << "get new head" << '\n';
-            ii = iBB->begin();
+            // ii = iBB->begin();
 	    // errs() << "set ii" << '\n';
             // Instruction *kinstclone = kinst->clone();
             // iBB->getInstList().insert(ii, kinstclone);
