@@ -56,8 +56,8 @@ bool DopLoop::isloop(BasicBlock *bb)
     BranchInst *br = dyn_cast<BranchInst>(bbend);
 
     // skip the unconditional jumps
-    while (br && !br->isConditonal()) {
-        Instruction *next = br->getSuccessor()->getTerminator();
+    while (br && br->isUnconditional()) {
+        Instruction *next = br->getSuccessor(0)->getTerminator();
         BranchInst *nextbr = dyn_cast<BranchInst>(next);
         br = nextbr ? nextbr : NULL;
     }
