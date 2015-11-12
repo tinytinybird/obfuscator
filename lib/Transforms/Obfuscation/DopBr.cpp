@@ -273,8 +273,7 @@ void DopBr::builddep(Instruction *iuse, std::set<Instruction*> &idep)
     if (vi == NULL) {
         errs() << "No instruction" << '\n';
         return;
-    }
-    else {
+    } else {
         switch (vi->getOpcode()) {
         case Instruction::Add:
             errs() << "Add" << '\n';
