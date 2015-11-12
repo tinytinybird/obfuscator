@@ -1,7 +1,6 @@
 #include "llvm/Pass.h"
 #include "llvm/IR/Function.h"
 #include "llvm/Support/raw_ostream.h"
-#include "llvm/Support/CFG.h"
 
 #include "llvm/Transforms/Obfuscation/DopLoop.h"
 #include "llvm/Transforms/Obfuscation/Utils.h"
@@ -64,9 +63,9 @@ bool DopLoop::isloop(BasicBlock *bb)
     }
 
     if (br) {
-        BasicBlock *BB = br->getParent;
-        for (succ_iterator PI = succ_begin(BB), E = succ_end(BB); PI != E; ++PI) {
-            if (*PI == bb)
+        int succnum = br->getNumSuccessors();
+        for (int i = 0; i < succnum; ++i) {
+            if (br->getSuccessor(i) == bb)
                 return true;
         }
         return false;
