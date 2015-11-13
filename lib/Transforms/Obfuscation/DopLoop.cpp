@@ -82,9 +82,36 @@ namespace {
             StoreInst* dop1br2st = new StoreInst(insertAlloca->getOperand(1), dop1br2, false, ii);
             StoreInst* dop2br2st = new StoreInst(insertAlloca->getOperand(1), dop2br2, false, ii);
 
+            int num = 5;
+            BasicBlock::iterator splitpt1, splitpt2;
+            for (BasicBlock::iterator i = loopBB->begin(), e = loopBB->end(); num != 0; --num) {
+                ++i;--e;
+                if (num == 0) {
+                    splitpt1 = i;
+                    splitpt2 = e;
+                }
+            }
+            splitpt2--;
+
+            BasicBlock *obfBB1, *normalBB, *obfBB2, *loophead, *loopend;
+            Twine *var1 = new Twine("obfBB1");
+            obfBB1 = loopBB->splitBasicBlock(loopBB->begin(), *var1);
+            Twine *var2 = new Twine("normalBB");
+            normalBB = obfBB1->splitBasicBlock(splitpt1, *var2);
+
+            BasicBlock *newhead, *newtail;
+            std::map<Instruction*, Instruction*> fixssa1;
+            insertDOP(obfBB1, normalBB, 2, dop1, dop2, &newhead, &newtail, &fixssa1, F);
+	    errs() << "DOP1 inserted." << '\n';
+
         }
 
         bool isloop(BasicBlock *bb);
+        void DopBr::insertDOP(BasicBlock *obfBB, BasicBlock *postBB, int offset,
+                              AllocaInst *dop1, AllocaInst *dop2,
+                              BasicBlock **head, BasicBlock **tail,
+                              std::map<Instruction*, Instruction*> *fixssa,
+                              Function &F);
     };
 }
 
@@ -110,6 +137,113 @@ bool DopLoop::isloop(BasicBlock *bb)
         return false;
     } else
         return false;
+}
+
+// Insert dynamic opaque predicate into obfBB
+void DopBr::insertDOP(BasicBlock *obfBB, BasicBlock *postBB, int offset,
+                      AllocaInst *dop1, AllocaInst *dop2,
+                      BasicBlock **head, BasicBlock **tail,
+                      std::map<Instruction*, Instruction*> *fixssa,
+                      Function &F)
+{
+    // create the first dop basic block
+    BasicBlock *dop1BB = BasicBlock::Create(F.getContext(), "dop1BB", &F, obfBB);
+    LoadInst *dop1p = new LoadInst(dop1, "", false, 4, dop1BB);
+    LoadInst *dop1deref = new LoadInst(dop1p, "", false, 4, dop1BB);
+    *head = dop1BB;
+
+    // create alter BB from cloneing the obfBB
+    const Twine & name = "alter";
+    ValueToValueMapTy VMap;
+    BasicBlock* alterBB = llvm::CloneBasicBlock(obfBB, VMap, name, &F);
+
+    for (BasicBlock::iterator i = alterBB->begin(), e = alterBB->end() ; i != e; ++i) {
+        // Loop over the operands of the instruction
+        for(User::op_iterator opi = i->op_begin (), ope = i->op_end(); opi != ope; ++opi) {
+            // get the value for the operand
+            Value *v = MapValue(*opi, VMap,  RF_None, 0);
+            if (v != 0){
+                *opi = v;
+            }
+        }
+    }
+
+    // Map instructions in obfBB and alterBB
+    for (BasicBlock::iterator i = obfBB->begin(), j = alterBB->begin(),
+             e = obfBB->end(), f = alterBB->end(); i != e && j != f; ++i, ++j) {
+        // errs() << "install fix ssa:" << "\n";
+        (*fixssa)[i] = j;
+    }
+    // Fix use values in alterBB
+    for (BasicBlock::iterator i = alterBB->begin(), e = alterBB->end() ; i != e; ++i) {
+        for (User::op_iterator opi = i->op_begin(), ope = i->op_end(); opi != ope; ++opi) {
+            Instruction *vi = dyn_cast<Instruction>(*opi);
+            if (fixssa->find(vi) != fixssa->end()) {
+                *opi = (Value*)(*fixssa)[vi];
+            }
+        }
+    }
+
+    // create the first dop at the end of dop1BB
+    Twine *var3 = new Twine("dopbranch1");
+    Value *rvalue = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
+    // preBB->getTerminator()->eraseFromParent();
+    ICmpInst *dopbranch1 = new ICmpInst(*dop1BB, CmpInst::ICMP_SGT , dop1deref, rvalue, *var3);
+    BranchInst::Create(obfBB, alterBB, dopbranch1, dop1BB);
+
+    // split the obfBB and alterBB with an offset
+    BasicBlock::iterator splitpt1 = obfBB->begin(),
+                         splitpt2 = alterBB->begin();
+    BasicBlock *obfBB2, *alterBB2;
+    // int num = 2;
+    int n = offset;
+    for (BasicBlock::iterator e = obfBB->end(); splitpt1 != e && n > 0; ++splitpt1, --n) ;
+    n = offset+1;
+    for (BasicBlock::iterator e = alterBB->end(); splitpt2 != e && n > 0; ++splitpt2, --n) ;
+    Twine *var4 = new Twine("obfBB2");
+    obfBB2 = obfBB->splitBasicBlock(splitpt1, *var4);
+    Twine *var5 = new Twine("obfBBalter2");
+    alterBB2 = alterBB->splitBasicBlock(splitpt2, *var5);
+
+    // create the second dop as a separate BB
+    BasicBlock *dop2BB = BasicBlock::Create(F.getContext(), "dop2BB", &F, obfBB2);
+    LoadInst *dop2p = new LoadInst(dop2, "", false, 4, dop2BB);
+    LoadInst *dop2deref = new LoadInst(dop2p, "", false, 4, dop2BB);
+    Twine *var6 = new Twine("dopbranch2");
+    Value *rvalue2 = ConstantInt::get(Type::getInt32Ty(F.getContext()), 0);
+    ICmpInst *dopbranch2 = new ICmpInst(*dop2BB, CmpInst::ICMP_SGT , dop2deref, rvalue2, *var6);
+    BranchInst::Create(obfBB2, alterBB2, dopbranch2, dop2BB);
+
+    // connect obfBB and alterBB to the second dop
+    obfBB->getTerminator()->eraseFromParent();
+    BranchInst::Create(dop2BB, obfBB);
+    alterBB->getTerminator()->eraseFromParent();
+    BranchInst::Create(dop2BB, alterBB);
+
+    // insert phi node and update uses in postBB
+    BasicBlock::iterator ii = postBB->begin();
+    std::map<Instruction*, PHINode*> insertedPHI;
+    for (BasicBlock::iterator i = postBB->begin(), e = postBB->end() ; i != e; ++i) {
+        for(User::op_iterator opi = i->op_begin(), ope = i->op_end(); opi != ope; ++opi) {
+            Instruction *p;
+            Instruction *vi = dyn_cast<Instruction>(*opi);
+            PHINode *q;
+            if (fixssa->find(vi) != fixssa->end()) {
+                PHINode *fixnode;
+                p = (*fixssa)[vi];
+                if (insertedPHI.find(vi) == insertedPHI.end()) {
+                    q = insertedPHI[vi];
+                    fixnode = PHINode::Create(vi->getType(), 2, "", ii);
+                    fixnode->addIncoming(vi, vi->getParent());
+                    fixnode->addIncoming(p, p->getParent());
+                    insertedPHI[vi] = fixnode;
+                } else {
+                    fixnode = q;
+                }
+                *opi = (Value*)fixnode;
+            }
+        }
+    }
 }
 
 char DopLoop::ID = 0;
