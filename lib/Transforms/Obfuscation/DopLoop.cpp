@@ -40,7 +40,7 @@ namespace {
                 Instruction *bbend = bb->getTerminator();
                 BranchInst *br = dyn_cast<BranchInst>(bbend);
 
-                if (br && br->isUnconditonal() && br->getSuccessor(0) == loopBB) {
+                if (br && br->isUnconditional() && br->getSuccessor(0) == loopBB) {
                     preBB = bb;
                     break;
                 }
