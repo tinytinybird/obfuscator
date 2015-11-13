@@ -15,7 +15,7 @@ namespace {
         DopLoop(bool flag) : FunctionPass(ID) {this->flag = flag; DopLoop();}
 
         bool runOnFunction(Function &F) override {
-            if(toObfuscate(flag,&F,"dopbr")) {
+            if(toObfuscate(flag,&F,"doploop")) {
                 StringRef *sr = new StringRef("fun");
                 if (F.getName().equals(*sr)) {
                     addDopLoop(F);
@@ -82,11 +82,11 @@ namespace {
             StoreInst* dop1br2st = new StoreInst(insertAlloca->getOperand(1), dop1br2, false, ii);
             StoreInst* dop2br2st = new StoreInst(insertAlloca->getOperand(1), dop2br2, false, ii);
 
-            int num = 5;
+            int num = 6;
             BasicBlock::iterator splitpt1, splitpt2;
             for (BasicBlock::iterator i = loopBB->begin(), e = loopBB->end(); num != 0; --num) {
                 ++i;--e;
-                if (num == 0) {
+                if (num == 1) {
                     splitpt1 = i;
                     splitpt2 = e;
                 }
@@ -96,9 +96,10 @@ namespace {
             BasicBlock *obfBB1, *normalBB, *obfBB2, *loophead, *loopend;
             Twine *var1 = new Twine("obfBB1");
             obfBB1 = loopBB->splitBasicBlock(loopBB->begin(), *var1);
+	    errs() << "split obfBB1." << '\n';
             Twine *var2 = new Twine("normalBB");
             normalBB = obfBB1->splitBasicBlock(splitpt1, *var2);
-
+	    errs() << "split normalBB." << '\n';
             BasicBlock *newhead, *newtail;
             std::map<Instruction*, Instruction*> fixssa1;
             insertDOP(obfBB1, normalBB, 2, dop1, dop2, &newhead, &newtail, &fixssa1, F);
@@ -107,7 +108,7 @@ namespace {
         }
 
         bool isloop(BasicBlock *bb);
-        void DopBr::insertDOP(BasicBlock *obfBB, BasicBlock *postBB, int offset,
+        void insertDOP(BasicBlock *obfBB, BasicBlock *postBB, int offset,
                               AllocaInst *dop1, AllocaInst *dop2,
                               BasicBlock **head, BasicBlock **tail,
                               std::map<Instruction*, Instruction*> *fixssa,
@@ -140,7 +141,7 @@ bool DopLoop::isloop(BasicBlock *bb)
 }
 
 // Insert dynamic opaque predicate into obfBB
-void DopBr::insertDOP(BasicBlock *obfBB, BasicBlock *postBB, int offset,
+void DopLoop::insertDOP(BasicBlock *obfBB, BasicBlock *postBB, int offset,
                       AllocaInst *dop1, AllocaInst *dop2,
                       BasicBlock **head, BasicBlock **tail,
                       std::map<Instruction*, Instruction*> *fixssa,
