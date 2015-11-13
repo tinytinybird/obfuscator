@@ -87,7 +87,7 @@ namespace {
             }
             splitpt2--;
 
-            BasicBlock *obfBB1, *normalBB, *obfBB2, *loophead, *loopend;
+            BasicBlock *obfBB1, *normalBB, *obfBB2, *loopend;
             Twine *var1 = new Twine("obfBB1");
             obfBB1 = loopBB->splitBasicBlock(loopBB->begin(), *var1);
 	    errs() << "split obfBB1." << '\n';
@@ -98,6 +98,8 @@ namespace {
             BasicBlock *newhead, *newtail;
             std::map<Instruction*, Instruction*> fixssa1;
             insertDOP(obfBB1, normalBB, 2, dop1, dop2, &newhead, &newtail, &fixssa1, F);
+            loopBB->getTerminator()->eraseFromParent();
+            BranchInst::Create(newhead, loopBB);
 	    errs() << "DOP1 inserted." << '\n';
 
             Twine *var3 = new Twine("obfBB2");
@@ -107,8 +109,9 @@ namespace {
             BasicBlock *newhead2, *newtail2;
             std::map<Instruction*, Instruction*> fixssa2;
             insertDOP(obfBB2, loopend, 2, dop1br1, dop2br1, &newhead2, &newtail2, &fixssa2, F);
+            normalBB->getTerminator()->eraseFromParent();
+            BranchInst::Create(newhead2, normalBB);
 	    errs() << "DOP2 inserted." << '\n';
-
         }
 
         bool isloop(BasicBlock *bb);
