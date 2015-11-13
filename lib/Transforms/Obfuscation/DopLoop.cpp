@@ -64,23 +64,17 @@ namespace {
             AllocaInst* dop2 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop2");
             AllocaInst* dop1br1 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop1br1");
             AllocaInst* dop2br1 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop2br1");
-            AllocaInst* dop1br2 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop1br2");
-            AllocaInst* dop2br2 = new AllocaInst(Type::getInt32PtrTy(F.getContext()), 0, 4, "dop2br2");
 
             preBB->getInstList().insert(ii, dop1);
             preBB->getInstList().insert(ii, dop2);
             preBB->getInstList().insert(ii, dop1br1);
             preBB->getInstList().insert(ii, dop2br1);
-            preBB->getInstList().insert(ii, dop1br2);
-            preBB->getInstList().insert(ii, dop2br2);
 
             // store the variable's address to the dop pointers
             StoreInst* dop1st = new StoreInst(insertAlloca->getOperand(1), dop1, false, ii);
             StoreInst* dop2st = new StoreInst(insertAlloca->getOperand(1), dop2, false, ii);
             StoreInst* dop1br1st = new StoreInst(insertAlloca->getOperand(1), dop1br1, false, ii);
             StoreInst* dop2br1st = new StoreInst(insertAlloca->getOperand(1), dop2br1, false, ii);
-            StoreInst* dop1br2st = new StoreInst(insertAlloca->getOperand(1), dop1br2, false, ii);
-            StoreInst* dop2br2st = new StoreInst(insertAlloca->getOperand(1), dop2br2, false, ii);
 
             int num = 6;
             BasicBlock::iterator splitpt1, splitpt2;
@@ -100,10 +94,20 @@ namespace {
             Twine *var2 = new Twine("normalBB");
             normalBB = obfBB1->splitBasicBlock(splitpt1, *var2);
 	    errs() << "split normalBB." << '\n';
+
             BasicBlock *newhead, *newtail;
             std::map<Instruction*, Instruction*> fixssa1;
             insertDOP(obfBB1, normalBB, 2, dop1, dop2, &newhead, &newtail, &fixssa1, F);
 	    errs() << "DOP1 inserted." << '\n';
+
+            Twine *var3 = new Twine("obfBB2");
+            obfBB2 = normalBB->splitBasicBlock(splitpt2, *var3);
+            loopend = obfBB2->splitBasicBlock(obfBB2->getTerminator(), "");
+
+            BasicBlock *newhead2, *newtail2;
+            std::map<Instruction*, Instruction*> fixssa2;
+            insertDOP(obfBB2, loopend, 2, dop1br1, dop2br1, &newhead2, &newtail2, &fixssa2, F);
+	    errs() << "DOP2 inserted." << '\n';
 
         }
 
