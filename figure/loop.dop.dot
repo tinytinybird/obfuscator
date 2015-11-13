@@ -1,0 +1,44 @@
+digraph "CFG for 'fun' function" {
+	label="CFG for 'fun' function";
+
+	Node0xa09d880 [shape=record,label="{%0:\l  %1 = alloca i32, align 4\l  %2 = alloca i32, align 4\l  %c = alloca i32, align 4\l  %d = alloca i32, align 4\l  %e = alloca i32, align 4\l  store i32 %a, i32* %1, align 4\l  %dop1 = alloca i32*, align 4\l  %dop2 = alloca i32*, align 4\l  %dop1br1 = alloca i32*, align 4\l  %dop2br1 = alloca i32*, align 4\l  store i32* %1, i32** %dop1\l  store i32* %1, i32** %dop2\l  store i32* %1, i32** %dop1br1\l  store i32* %1, i32** %dop2br1\l  store i32 %b, i32* %2, align 4\l  store i32 0, i32* %d, align 4\l  br label %3\l}"];
+	Node0xa09d880 -> Node0xa09c040;
+	Node0xa09c040 [shape=record,label="{%3:\l\l  br label %obfBB1\l}"];
+	Node0xa09c040 -> Node0xa09c0a0;
+	Node0xa09c070 [shape=record,label="{dop1BB:                                           \l  %4 = load i32** %dop1, align 4\l  %5 = load i32* %4, align 4\l  %dopbranch1 = icmp sgt i32 %5, 0\l  br i1 %dopbranch1, label %obfBB1, label %obfBB1alter\l|{<s0>T|<s1>F}}"];
+	Node0xa09c070:s0 -> Node0xa09c0a0;
+	Node0xa09c070:s1 -> Node0xa09dde8;
+	Node0xa09c0a0 [shape=record,label="{obfBB1:                                           \l  %6 = load i32* %2, align 4\l  %7 = load i32* %1, align 4\l  br label %dop2BB\l}"];
+	Node0xa09c0a0 -> Node0xa09c0d0;
+	Node0xa09c0d0 [shape=record,label="{dop2BB:                                           \l  %8 = load i32** %dop2, align 4\l  %9 = load i32* %8, align 4\l  %dopbranch2 = icmp sgt i32 %9, 0\l  br i1 %dopbranch2, label %obfBB2, label %obfBBalter2\l|{<s0>T|<s1>F}}"];
+	Node0xa09c0d0:s0 -> Node0xa09c100;
+	Node0xa09c0d0:s1 -> Node0xa09de18;
+	Node0xa09c100 [shape=record,label="{obfBB2:                                           \l  %10 = mul nsw i32 3, %7\l  %11 = add nsw i32 %6, %10\l  store i32 %11, i32* %c, align 4\l  %12 = load i32* %c, align 4\l  br label %normalBB\l}"];
+	Node0xa09c100 -> Node0xa09c130;
+	Node0xa09c130 [shape=record,label="{normalBB:                                         \l  %13 = phi i32 [ %12, %obfBB2 ], [ %34, %obfBBalter2 ]\l  %14 = load i32* %2, align 4\l  %15 = sub nsw i32 %13, %14\l  br label %obfBB21\l}"];
+	Node0xa09c130 -> Node0xa09c190;
+	Node0xa09c160 [shape=record,label="{dop1BB2:                                          \l  %16 = load i32** %dop1br1, align 4\l  %17 = load i32* %16, align 4\l  %dopbranch13 = icmp sgt i32 %17, 0\l  br i1 %dopbranch13, label %obfBB21, label %obfBB21alter\l|{<s0>T|<s1>F}}"];
+	Node0xa09c160:s0 -> Node0xa09c190;
+	Node0xa09c160:s1 -> Node0xa09de48;
+	Node0xa09c190 [shape=record,label="{obfBB21:                                          \l  %18 = add nsw i32 %15, 4\l  store i32 %18, i32* %e, align 4\l  br label %dop2BB6\l}"];
+	Node0xa09c190 -> Node0xa09dcf8;
+	Node0xa09dcf8 [shape=record,label="{dop2BB6:                                          \l  %19 = load i32** %dop2br1, align 4\l  %20 = load i32* %19, align 4\l  %dopbranch27 = icmp sgt i32 %20, 0\l  br i1 %dopbranch27, label %obfBB24, label %obfBBalter25\l|{<s0>T|<s1>F}}"];
+	Node0xa09dcf8:s0 -> Node0xa09dd28;
+	Node0xa09dcf8:s1 -> Node0xa09de78;
+	Node0xa09dd28 [shape=record,label="{obfBB24:                                          \l  %21 = load i32* %c, align 4\l  %22 = load i32* %d, align 4\l  %23 = add nsw i32 %22, %21\l  store i32 %23, i32* %d, align 4\l  br label %24\l}"];
+	Node0xa09dd28 -> Node0xa09dd58;
+	Node0xa09dd58 [shape=record,label="{%24:\l\l  br label %25\l}"];
+	Node0xa09dd58 -> Node0xa09dd88;
+	Node0xa09dd88 [shape=record,label="{%25:\l\l  %26 = load i32* %d, align 4\l  %27 = icmp slt i32 %26, 16\l  br i1 %27, label %3, label %28\l|{<s0>T|<s1>F}}"];
+	Node0xa09dd88:s0 -> Node0xa09c040;
+	Node0xa09dd88:s1 -> Node0xa09ddb8;
+	Node0xa09ddb8 [shape=record,label="{%28:\l\l  %29 = load i32* %d, align 4\l  ret i32 %29\l}"];
+	Node0xa09dde8 [shape=record,label="{obfBB1alter:                                      \l  %30 = load i32* %2, align 4\l  %31 = load i32* %1, align 4\l  %32 = mul nsw i32 3, %31\l  br label %dop2BB\l}"];
+	Node0xa09dde8 -> Node0xa09c0d0;
+	Node0xa09de18 [shape=record,label="{obfBBalter2:                                      \l  %33 = add nsw i32 %30, %32\l  store i32 %33, i32* %c, align 4\l  %34 = load i32* %c, align 4\l  br label %normalBB\l}"];
+	Node0xa09de18 -> Node0xa09c130;
+	Node0xa09de48 [shape=record,label="{obfBB21alter:                                     \l  %35 = add nsw i32 %15, 4\l  store i32 %35, i32* %e, align 4\l  %36 = load i32* %c, align 4\l  br label %dop2BB6\l}"];
+	Node0xa09de48 -> Node0xa09dcf8;
+	Node0xa09de78 [shape=record,label="{obfBBalter25:                                     \l  %37 = load i32* %d, align 4\l  %38 = add nsw i32 %37, %36\l  store i32 %38, i32* %d, align 4\l  br label %24\l}"];
+	Node0xa09de78 -> Node0xa09dd58;
+}
